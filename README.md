@@ -44,7 +44,7 @@ rm -rf SDL
 
 4. Once the environment is setup:
 ```
-git clone https://github.com/ItsFuntum/aurorachat-wiiu.git
+git clone https://github.com/Unitendo/aurorachat-wiiu.git
 cd aurorachat-wiiu
 mkdir build && cd build
 /opt/devkitpro/portlibs/wiiu/bin/powerpc-eabi-cmake ../ -DCMAKE_POLICY_VERSION_MINIMUM=3.5
