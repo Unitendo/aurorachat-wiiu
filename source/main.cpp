@@ -1,5 +1,6 @@
 #include <whb/proc.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <romfs-wiiu.h>
 
@@ -14,6 +15,7 @@
 #include "input.h"
 #include "button.h"
 #include "theme.h"
+#include "storage.h"
 
 // Used in multiple files, so declared here
 // -------------------------
@@ -56,6 +58,8 @@ int main(int argc, char **argv)
     romfsInit();
     TTF_Init();
     IMG_Init(IMG_INIT_PNG);
+
+    mkdir("fs:/vol/external01/wiiu/apps/aurorachatforWiiU", 0777);
 
     std::string serverResponse = "";
     std::string failedReason = "";
@@ -108,6 +112,20 @@ int main(int argc, char **argv)
     ApplyTheme(0);
 
     AddChatLine(tvRenderer, "-chat-", fontSize, tvTextColor, maxWidth);
+
+    if (LoadLogin(username, password)) {
+        std::string reply = login_account(username.c_str(), password.c_str());
+
+        if (reply.find("\"data\":\"LOGIN_OK\"") != std::string::npos) {
+            std::string welcome = "Welcome back, " + username + "!";
+            AddChatLine(tvRenderer, welcome.c_str(), fontSize, tvTextColor, maxWidth);
+            scene = "chat";
+        } else {
+            scene = "selection_menu";
+        }
+    } else {
+        scene = "selection_menu";
+    }
 
     // Discord QR Code Texture
     SDL_Texture* discordTexture = LoadImage(drcRenderer, "romfs:/res/QRCode_Discord.png");
@@ -219,6 +237,9 @@ int main(int argc, char **argv)
 
                         if (reply.find("\"data\":\"USR_CREATED\"") != std::string::npos) {
                             serverResponse.clear();
+
+                            SaveLogin(username, password);
+
                             scene = "register_success";
                         }
                         else if (reply.find("\"data\":\"USR_IN_USE\"") != std::string::npos) {
@@ -246,6 +267,8 @@ int main(int argc, char **argv)
 
                         if (reply.find("\"data\":\"LOGIN_OK\"") != std::string::npos) {
                             serverResponse.clear();
+
+                            SaveLogin(username, password);
 
                             std::string welcome = "Welcome to aurorachat, " + username + "!";
                             AddChatLine(tvRenderer, welcome.c_str(), fontSize, tvTextColor, maxWidth);
@@ -331,6 +354,8 @@ int main(int argc, char **argv)
                         if (scene == "chat") {
                             username = "";
                             password = "";
+
+                            ClearLogin();
                         }
 
                         scene = "selection_menu";
