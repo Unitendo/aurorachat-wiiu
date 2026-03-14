@@ -12,11 +12,11 @@ The license, code of conduct, and security/contributing guidelines in the main r
 2. Install the required dependencies.
 
 ```
-sudo pacman -S wut wut-tools ppc-pkg-config wiiu-pkg-config devkitPPC wiiu-sdl2 wiiu-sdl2_ttf wiiu-sdl2_image ppc-freetype ppc-harfbuzz ppc-libpng ppc-zlib bzip2 ppc-brotli
+sudo pacman -S wut wut-tools ppc-pkg-config wiiu-pkg-config devkitPPC wiiu-sdl2 wiiu-sdl2_ttf wiiu-sdl2_image ppc-libwebp ppc-freetype ppc-harfbuzz ppc-libpng ppc-zlib bzip2 ppc-brotli
 ```
 or
 ```
-sudo dkp-pacman -S wut wut-tools ppc-pkg-config wiiu-pkg-config devkitPPC wiiu-sdl2 wiiu-sdl2_ttf wiiu-sdl2_image ppc-freetype ppc-harfbuzz ppc-libpng ppc-zlib bzip2 ppc-brotli
+sudo dkp-pacman -S wut wut-tools ppc-pkg-config wiiu-pkg-config devkitPPC wiiu-sdl2 wiiu-sdl2_ttf wiiu-sdl2_image ppc-libwebp ppc-freetype ppc-harfbuzz ppc-libpng ppc-zlib bzip2 ppc-brotli
 ```
 
 3. You will also need to install and download libromfs-wiiu from the GitHub and even though you installed SDL2 from pacman, it may be out of date.
