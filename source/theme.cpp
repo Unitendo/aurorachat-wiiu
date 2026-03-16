@@ -283,9 +283,22 @@ void ApplyTheme(int index)
         RebuildChatTextures(tvRenderer, fontSize, tvTextColor, maxWidth);
 }
 
+// Helper function
+auto clamp = [](float v) {
+    if (v < 0) return 0;
+    if (v > 255) return 255;
+    return (int)v;
+};
+
 void UpdateThemeEffects()
 {
-    if (currentTheme != 8) return; // Holographic theme only
+    if (currentTheme != 8) return;
+
+    static Uint32 lastUpdate = 0;
+    Uint32 now = SDL_GetTicks();
+
+    if (now - lastUpdate < 33) return;
+    lastUpdate = now;
 
     VPADStatus vpad;
     int result = VPADRead(VPAD_CHAN_0, &vpad, 1, NULL);
@@ -295,17 +308,16 @@ void UpdateThemeEffects()
     static float z = 0.0f;
 
     if (result > 0) {
-        // Yes, accelerometer is misspelled here
-        x = vpad.accelorometer.acc.x;
-        y = vpad.accelorometer.acc.y;
-        z = vpad.accelorometer.acc.z;
+        const float smoothing = 0.1f;
+
+        x = x * 0.9f + vpad.accelorometer.acc.x * smoothing;
+        y = y * 0.9f + vpad.accelorometer.acc.y * smoothing;
+        z = z * 0.9f + vpad.accelorometer.acc.z * smoothing;
     }
 
-    tvBackgroundColor.r = (x + 1.0f) * 127;
-    tvBackgroundColor.g = (y + 1.0f) * 127;
-    tvBackgroundColor.b = (z + 1.0f) * 127;
+    tvBackgroundColor.r = clamp((x + 1.0f) * 127.5f);
+    tvBackgroundColor.g = clamp((y + 1.0f) * 127.5f);
+    tvBackgroundColor.b = clamp((z + 1.0f) * 127.5f);
 
-    drcBackgroundColor.r = (x + 1.0f) * 127;
-    drcBackgroundColor.g = (y + 1.0f) * 127;
-    drcBackgroundColor.b = (z + 1.0f) * 127;
+    drcBackgroundColor = tvBackgroundColor;
 }
