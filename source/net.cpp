@@ -215,11 +215,7 @@ std::string send_chat(const char* username, const char* password, const char* me
     std::string body =
         "{\"cmd\":\"CHAT\",\"content\":\"" +
         json_escape(message) +
-        "\",\"username\":\"" +
-        json_escape(username) +
-        "\",\"password\":\"" +
-        json_escape(password) +
-        "\",\"platform\":\"Wii U\"}";
+        ",\"platform\":\"Wii U\"}";
 
     return send_api_request(body);
 }
