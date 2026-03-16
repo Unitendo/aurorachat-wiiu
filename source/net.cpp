@@ -210,12 +210,12 @@ std::string login_account(const char* username, const char* password)
     return send_api_request(body);
 }
 
-std::string send_chat(const char* username, const char* password, const char* message)
+std::string send_chat(const char* message)
 {
     std::string body =
         "{\"cmd\":\"CHAT\",\"content\":\"" +
         json_escape(message) +
-        ",\"platform\":\"Wii U\"}";
+        "\",\"platform\":\"Wii U\"}";
 
     return send_api_request(body);
 }

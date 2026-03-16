@@ -45,4 +45,4 @@ std::string json_escape(const char* input);
 std::string connect_to_api();
 std::string make_account(const char* username, const char* password);
 std::string login_account(const char* username, const char* password);
-std::string send_chat(const char* username, const char* password, const char* message);
+std::string send_chat(const char* message);

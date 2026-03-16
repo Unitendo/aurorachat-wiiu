@@ -375,7 +375,7 @@ int main(int argc, char **argv)
                         if (textSendType == "message" && !textBuffer.empty()) {
                             strncpy(input, textBuffer.c_str(), sizeof(input) - 1);
                             input[sizeof(input) - 1] = '\0';
-                            send_chat(username.c_str(), password.c_str(), input);
+                            send_chat(input);
                         }
                         else if (textSendType == "username") {
                             username = textBuffer;
