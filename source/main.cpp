@@ -394,6 +394,8 @@ int main(int argc, char **argv)
         // Handle incoming messages
         TryReceive(&sock, tvRenderer, fontSize, tvTextColor, maxWidth);
 
+        UpdateThemeEffects();
+
         // Render TV Screen
         if (tvRenderer) {
             SDL_SetRenderDrawColor(tvRenderer, tvBackgroundColor.r, tvBackgroundColor.g, tvBackgroundColor.b, tvBackgroundColor.a);

@@ -99,6 +99,18 @@ Theme themes[] = {
     },
 
     {
+        {0, 0, 0, 200},
+        {15, 82, 87, 255},
+
+        {0, 0, 0, 200},
+        {15, 82, 87, 255},
+
+        {0, 0, 0, 200},
+
+        "Holographic"
+    },
+
+    {
         {230, 57, 70, 200},
         {254, 240, 204, 255},
 
@@ -269,4 +281,30 @@ void ApplyTheme(int index)
     // Rebuild chat using TV text color
     if (tvRenderer)
         RebuildChatTextures(tvRenderer, fontSize, tvTextColor, maxWidth);
+}
+
+void UpdateThemeEffects()
+{
+    if (currentTheme != 8) return; // Holographic theme only
+
+    VPADStatus vpad;
+    VPADRead(VPAD_CHAN_0, &vpad, 1, NULL);
+
+    // Yes, accelerometer is misspelled here
+    float x = vpad.accelorometer.acc.x;
+    float y = vpad.accelorometer.acc.y;
+    float z = vpad.accelorometer.acc.z;
+
+    int inte = 10;
+
+    int modR = abs((int)(y / inte)) + abs((int)(z / inte));
+    int modG = abs((int)(x / inte)) + abs((int)(z / inte));
+    int modB = abs((int)(x / inte)) + abs((int)(y / inte));
+
+    uint8_t holoR = 255 - modR;
+    uint8_t holoG = 255 - modG;
+    uint8_t holoB = 255 - modB;
+
+    tvBackgroundColor = {holoR, holoG, holoB, 255};
+    drcBackgroundColor = {holoR, holoG, holoB, 255};
 }

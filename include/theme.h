@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <vpad/input.h>
 
 // These are defined in main.cpp
 extern SDL_Renderer* tvRenderer;
@@ -27,3 +28,4 @@ extern int currentTheme;
 extern const int THEME_COUNT;
 
 void ApplyTheme(int index);
+void UpdateThemeEffects();
