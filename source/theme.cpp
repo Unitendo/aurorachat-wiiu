@@ -288,23 +288,24 @@ void UpdateThemeEffects()
     if (currentTheme != 8) return; // Holographic theme only
 
     VPADStatus vpad;
-    VPADRead(VPAD_CHAN_0, &vpad, 1, NULL);
+    int result = VPADRead(VPAD_CHAN_0, &vpad, 1, NULL);
 
-    // Yes, accelerometer is misspelled here
-    float x = vpad.accelorometer.acc.x;
-    float y = vpad.accelorometer.acc.y;
-    float z = vpad.accelorometer.acc.z;
+    static float x = 0.0f;
+    static float y = 0.0f;
+    static float z = 0.0f;
 
-    int inte = 10;
+    if (result > 0) {
+        // Yes, accelerometer is misspelled here
+        x = vpad.accelorometer.acc.x;
+        y = vpad.accelorometer.acc.y;
+        z = vpad.accelorometer.acc.z;
+    }
 
-    int modR = abs((int)(y / inte)) + abs((int)(z / inte));
-    int modG = abs((int)(x / inte)) + abs((int)(z / inte));
-    int modB = abs((int)(x / inte)) + abs((int)(y / inte));
+    tvBackgroundColor.r = (x + 1.0f) * 127;
+    tvBackgroundColor.g = (y + 1.0f) * 127;
+    tvBackgroundColor.b = (z + 1.0f) * 127;
 
-    uint8_t holoR = 255 - modR;
-    uint8_t holoG = 255 - modG;
-    uint8_t holoB = 255 - modB;
-
-    tvBackgroundColor = {holoR, holoG, holoB, 255};
-    drcBackgroundColor = {holoR, holoG, holoB, 255};
+    drcBackgroundColor.r = (x + 1.0f) * 127;
+    drcBackgroundColor.g = (y + 1.0f) * 127;
+    drcBackgroundColor.b = (z + 1.0f) * 127;
 }
