@@ -127,6 +127,35 @@ int main(int argc, char **argv)
         scene = "selection_menu";
     }
 
+    SDL_Texture* aucIcons[5];
+    SDL_Texture* aucIconsSelected[5];
+    SDL_Rect aucIconsRect[5];
+    int selectedIcon = 0;
+
+    const int screenHeight = 480;
+    const int iconCount = 5;
+    const int padding = 20; // top + bottom padding
+    const int spacing = 10; // space between icons
+
+    // Calculate max height available for icons
+    int totalSpacing = spacing * (iconCount - 1);
+    int availableHeight = screenHeight - padding * 2 - totalSpacing;
+
+    // Size each icon to fit
+    int iconSize = availableHeight / iconCount;
+
+    for (int i = 0; i < iconCount; i++) {
+        std::string base = "romfs:/res/auc_icons/1x/Asset " + std::to_string(i + 1);
+
+        aucIcons[i] = IMG_LoadTexture(drcRenderer, (base + ".png").c_str());
+        aucIconsSelected[i] = IMG_LoadTexture(drcRenderer, (base + "_selected.png").c_str());
+
+        aucIconsRect[i].x = 0; // LEFT ALIGN
+        aucIconsRect[i].y = padding + i * (iconSize + spacing);
+        aucIconsRect[i].w = iconSize;
+        aucIconsRect[i].h = iconSize;
+    }
+
     // Discord QR Code Texture
     SDL_Texture* discordTexture = LoadImage(drcRenderer, "romfs:/res/QRCode_Discord.png");
 
@@ -223,6 +252,31 @@ int main(int argc, char **argv)
 
                 int mx = event.button.x;
                 int my = event.button.y;
+
+                for (int i = 0; i < 5; i++) {
+                    if (PointInRect(mx, my, aucIconsRect[i])) {
+                        selectedIcon = i;
+
+                        // Handle each icon
+                        switch (i) {
+                            case 0:
+                                scene = "chat";
+                                break;
+                            case 1:
+                                rulesPage = 1;
+                                break;
+                            case 2:
+                                // Does nothing yet
+                                break;
+                            case 3:
+                                // Does nothing yet
+                                break;
+                            case 4:
+                                // Does nothing yet
+                                break;
+                        }
+                    }
+                }
 
                 if (PointInRect(mx, my, button_middle_top )) {
                     if (scene == "selection_menu") scene = "sign_up";
@@ -339,25 +393,9 @@ int main(int argc, char **argv)
                             scene = "sign_in_confirm";
                         }
                     }
-                    else if (scene == "chat" && rulesPage == 0) {
-                        if (connectionLost) {
-                            ReconnectToTCPServer();
-                        } else {
-                            textSendType = "message";
-                            SDL_WiiUSetSWKBDHintText("Say something...");
-                            SDL_StartTextInput();
-                        }
-                    }
                 }
                 else if (PointInRect(mx, my, button_left_bottom)) {
-                    if (scene == "sign_up" || scene == "sign_in" || scene == "failed" || scene == "register_success" || scene == "chat" && rulesPage == 0) {
-                        if (scene == "chat") {
-                            username = "";
-                            password = "";
-
-                            ClearLogin();
-                        }
-
+                    if (scene == "sign_up" || scene == "sign_in" || scene == "failed" || scene == "register_success") {
                         scene = "selection_menu";
                     }
                     else if (scene == "sign_up_confirm") scene = "sign_up";
@@ -448,9 +486,8 @@ int main(int argc, char **argv)
             SDL_SetRenderDrawColor(drcRenderer, drcBackgroundColor.r, drcBackgroundColor.g, drcBackgroundColor.b, drcBackgroundColor.a);
             SDL_RenderClear(drcRenderer);
 
-            if (scene != "selection_menu" && rulesPage == 0) {
-                if (scene == "chat") DrawButtonWithText(drcRenderer, buttonTexture, button_left_bottom, "Log Out", 48);
-                else DrawButtonWithText(drcRenderer, buttonTexture, button_left_bottom, "Back", 48);
+            if (scene != "selection_menu" && scene != "chat" && rulesPage == 0) {
+                DrawButtonWithText(drcRenderer, buttonTexture, button_left_bottom, "Back", 48);
             }
 
             if (scene == "selection_menu") {
@@ -523,26 +560,12 @@ int main(int argc, char **argv)
                     DrawText(drcRenderer, "We are not accepting ban appeals at this time.", 20, 455, 20, drcTextColor);
                 }
                 else {
-                    if (connectionLost) {
-                        DrawText(drcRenderer, "Ⓐ: Reconnect to server", 20, 0, 48, drcTextColor);
-                    }
-                    else {
-                        DrawText(drcRenderer, "Ⓐ: Send Message", 20, 0, 48, drcTextColor);
-                    }
-                    DrawText(drcRenderer, "↑/↓: Scroll Chat", 20, 50, 48, drcTextColor);
-                    DrawText(drcRenderer, "Ⓨ: View Rules", 20, 100, 48, drcTextColor);
-                    DrawText(drcRenderer, "L/R: Toggle Theme", 20, 150, 48, drcTextColor);
-                    DrawText(drcRenderer, "X: Reverse Theme", 20, 200, 48, drcTextColor);
-                    DrawText(drcRenderer, "Current Theme:", 20, 260, 48, drcTextColor);
-                    if (isThemeReversed)
-                        DrawText(drcRenderer, (std::string(themes[currentTheme].name) + " (reversed)").c_str(), 20, 310, 48, drcTextColor);
-                    else {
-                        DrawText(drcRenderer, themes[currentTheme].name, 20, 310, 48, drcTextColor);
-                    }
-                    if (connectionLost) {
-                        DrawButtonWithText(drcRenderer, buttonTexture, button_right_bottom, "Reconnect", 48);
-                    } else {
-                        DrawButtonWithText(drcRenderer, buttonTexture, button_right_bottom, "Send", 48);
+                    for (int i = 0; i < 5; i++) {
+                        if (i == selectedIcon) {
+                            SDL_RenderCopy(drcRenderer, aucIconsSelected[i], NULL, &aucIconsRect[i]);
+                        } else {
+                            SDL_RenderCopy(drcRenderer, aucIcons[i], NULL, &aucIconsRect[i]);
+                        }
                     }
                 }
             }
