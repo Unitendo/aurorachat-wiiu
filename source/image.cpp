@@ -18,3 +18,9 @@ SDL_Texture* LoadImage(SDL_Renderer* renderer, const char* path) {
 
     return texture;
 }
+
+SDL_Texture* LoadAvatar(SDL_Renderer* renderer, const std::string& username) {
+    std::string path = std::string("fs:/vol/external01/wiiu/apps/aurorachatforWiiU/avatars/") + username + ".png";
+    SDL_Log("Loading avatar: %s", path.c_str());
+    return LoadImage(renderer, path.c_str());
+}

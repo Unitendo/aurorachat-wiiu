@@ -19,7 +19,7 @@
 
 // Used in multiple files, so declared here
 // -------------------------
-std::string clientVersion = "5.3";
+std::string clientVersion = "4.5";
 
 std::string username = "";
 std::string password = "";
@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     IMG_Init(IMG_INIT_PNG);
 
     mkdir("fs:/vol/external01/wiiu/apps/aurorachatforWiiU", 0777);
+    mkdir("fs:/vol/external01/wiiu/apps/aurorachatforWiiU/avatars", 0777);
 
     std::string serverResponse = "";
     std::string failedReason = "";
@@ -111,14 +112,10 @@ int main(int argc, char **argv)
 
     ApplyTheme(0);
 
-    AddChatLine(tvRenderer, "-chat-", fontSize, tvTextColor, maxWidth);
-
     if (LoadLogin(username, password)) {
         std::string reply = login_account(username.c_str(), password.c_str());
 
         if (reply.find("\"data\":\"LOGIN_OK\"") != std::string::npos) {
-            std::string welcome = "Welcome back, " + username + "!";
-            AddChatLine(tvRenderer, welcome.c_str(), fontSize, tvTextColor, maxWidth);
             scene = "chat";
         } else {
             scene = "selection_menu";
@@ -323,9 +320,6 @@ int main(int argc, char **argv)
                             serverResponse.clear();
 
                             SaveLogin(username, password);
-
-                            std::string welcome = "Welcome to aurorachat, " + username + "!";
-                            AddChatLine(tvRenderer, welcome.c_str(), fontSize, tvTextColor, maxWidth);
 
                             scene = "chat";
                         }

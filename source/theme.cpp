@@ -280,7 +280,7 @@ void ApplyTheme(int index)
 
     // Rebuild chat using TV text color
     if (tvRenderer)
-        RebuildChatTextures(tvRenderer, fontSize, tvTextColor, maxWidth);
+        RebuildChatTextures(tvRenderer, fontSize, fontSize, tvTextColor, tvTextColor, maxWidth);
 }
 
 // Helper function

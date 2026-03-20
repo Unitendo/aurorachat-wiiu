@@ -38,19 +38,21 @@ void DrawText(SDL_Renderer* renderer, const char* text, int x, int y, int size, 
     SDL_DestroyTexture(texture);
 }
 
-SDL_Texture* DrawTextToTexture(SDL_Renderer* renderer, const char* text, int size, SDL_Color color, int maxWidth)
+SDL_Texture* DrawTextToTexture(SDL_Renderer* renderer, const char* text, int size, SDL_Color color, int maxWidth, bool bold)
 {
     TTF_Font* font = GetFont(size);
     if (!font) return nullptr;
 
-    SDL_Surface* surface =
-        TTF_RenderUTF8_Blended_Wrapped(font, text, color, maxWidth);
+    if (bold) {
+        TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+    } else {
+        TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+    }
 
+    SDL_Surface* surface = TTF_RenderUTF8_Blended_Wrapped(font, text, color, maxWidth);
     if (!surface) return nullptr;
 
-    SDL_Texture* texture =
-        SDL_CreateTextureFromSurface(renderer, surface);
-
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     return texture;

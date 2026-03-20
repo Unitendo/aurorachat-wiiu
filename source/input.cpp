@@ -35,9 +35,6 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
         }
         else if (scene == "register_success") {
             if (e.button == SDL_CONTROLLER_BUTTON_A) {
-                std::string welcome = "Welcome to aurorachat, " + username + "!";
-                AddChatLine(tvRenderer, welcome.c_str(), fontSize, tvTextColor, maxWidth);
-
                 scene = "chat";
             }
             else if (e.button == SDL_CONTROLLER_BUTTON_B) {
@@ -74,7 +71,7 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
             drcTextColor = tempText;
 
             if (tvRenderer)
-                RebuildChatTextures(tvRenderer, fontSize, tvTextColor, maxWidth);
+                RebuildChatTextures(tvRenderer, fontSize, fontSize, tvTextColor, tvTextColor, maxWidth);
         }
     }
 }

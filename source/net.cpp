@@ -1,5 +1,6 @@
 #include "net.h"
 #include "chat.h"
+#include "image.h"
 
 static bool SetNonBlocking(int sock)
 {
@@ -31,18 +32,11 @@ int ConnectToTCPServer()
 
 void ReconnectToTCPServer()
 {
-    AddChatLine(tvRenderer, "[LOG]: Reconnecting...", fontSize, tvTextColor, maxWidth);
-
     int newSock = ConnectToTCPServer();
 
     if (newSock >= 0) {
         sock = newSock;
         connectionLost = false;
-
-        AddChatLine(tvRenderer, "[LOG]: Successfully reconnected!", fontSize, tvTextColor, maxWidth);
-    }
-    else {
-        AddChatLine(tvRenderer, "[LOG]: Reconnect failed. Please check your internet connection and try again. The server may also be down at the moment. Thank you for your patience.", fontSize, tvTextColor, maxWidth);
     }
 }
 
@@ -86,13 +80,44 @@ void TryReceive(int *sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
                 std::string line = pending.substr(0, pos);
                 pending.erase(0, pos + 1);
 
-                AddChatLine(renderer, line.c_str(), fontSize, textColor, maxWidth);
+                size_t sep = line.find(':');
+
+                std::string username;
+                std::string message;
+
+                if (sep != std::string::npos)
+                {
+                    username = line.substr(0, sep);
+                    message = line.substr(sep + 1);
+
+                    // remove leading space in message
+                    if (!message.empty() && message[0] == ' ')
+                        message.erase(0, 1);
+                }
+                else
+                {
+                    // fallback (system message)
+                    username = "Server";
+                    message = line;
+                }
+
+                SDL_Texture* avatar = LoadAvatar(renderer, "example");
+
+                AddChatLine(
+                    renderer,
+                    username,
+                    message,
+                    avatar,
+                    fontSize,
+                    fontSize,
+                    textColor,
+                    textColor,
+                    maxWidth
+                );
             }
         }
         else if (r == 0)
         {
-            AddChatLine(renderer, "[ERROR]: Disconnected from server. Please reconnect to the server or restart your client.", fontSize, textColor, maxWidth);
-
             close(*sock);
             *sock = -1;
             pending.clear();
@@ -104,8 +129,6 @@ void TryReceive(int *sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
         {
             if (errno == EWOULDBLOCK || errno == EAGAIN)
                 break;
-
-            AddChatLine(renderer, "[ERROR]: An error occurred while receiving data. Please reconnect to the server or restart your client.", fontSize, textColor, maxWidth);
 
             close(*sock);
             *sock = -1;
@@ -124,23 +147,21 @@ std::string send_api_request(const std::string& jsonBody)
 
     int bodyLen = jsonBody.length();
 
-    char request[2048];
-    int reqLen = snprintf(request, sizeof(request),
+    std::string request =
         "POST /api HTTP/1.1\r\n"
-        "Host: 104.236.25.60:3072\r\n"
+        "Host: 127.0.0.1:3072\r\n"
         "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n"
+        "Content-Length: " + std::to_string(jsonBody.size()) + "\r\n"
         "Connection: close\r\n"
-        "\r\n"
-        "%s",
-        bodyLen,
-        jsonBody.c_str()
-    );
+        "\r\n" +
+        jsonBody;
 
     // ---- Send ----
     int totalSent = 0;
+    int reqLen = request.size();
+
     while (totalSent < reqLen) {
-        int sent = send(sock, request + totalSent, reqLen - totalSent, 0);
+        int sent = send(sock, request.c_str() + totalSent, reqLen - totalSent, 0);
         if (sent <= 0) {
             close(sock);
             return "";

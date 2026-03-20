@@ -18,7 +18,7 @@
 #include "net.h"
 #include "chat.h"
 
-#define SERVER_IP "104.236.25.60"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT_TCP 4040
 #define SERVER_PORT_HTTP 3072
 
