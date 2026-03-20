@@ -433,10 +433,6 @@ int main(int argc, char **argv)
             SDL_SetRenderDrawColor(tvRenderer, tvBackgroundColor.r, tvBackgroundColor.g, tvBackgroundColor.b, tvBackgroundColor.a);
             SDL_RenderClear(tvRenderer);
 
-            DrawText(tvRenderer, "Aurorachat", 1500, 20, 64, logoColor);
-            DrawText(tvRenderer, "for Wii U", 1580, 75, 64, logoColor);
-            DrawText(tvRenderer, ("version " + clientVersion).c_str(), 1610, 133, 48, logoColor);
-
             if (scene == "selection_menu") {
                 DrawText(tvRenderer, "Sign Up or Sign In", 600, 300, 64, tvTextColor);
             }
