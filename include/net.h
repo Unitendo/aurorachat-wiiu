@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <coreinit/debug.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -19,8 +20,8 @@
 #include "chat.h"
 
 #define SERVER_IP "104.236.25.60"
-#define SERVER_PORT_TCP 3033
-#define SERVER_PORT_HTTP 6767
+#define SERVER_PORT_TCP 7070
+#define SERVER_PORT_HTTP 7071
 
 // These are defined in main.cpp
 extern int sock;
@@ -28,7 +29,6 @@ extern SDL_Renderer* tvRenderer;
 extern int fontSize;
 extern int maxWidth;
 extern SDL_Color tvTextColor;
-extern std::string clientVersion;
 extern bool connectionLost;
 
 extern std::string authToken;
@@ -40,6 +40,11 @@ extern std::string currentRoom;
 
 extern SDL_Texture* discordAvatar;
 extern SDL_Texture* defaultAvatar;
+
+extern std::string serverRules;
+extern bool rulesLoaded;
+
+extern int rulesScrollY;
 
 void LoadAvatars();
 void DestroyAvatars();
@@ -55,4 +60,7 @@ bool create_account(const std::string& username, const std::string& password);
 bool login_account(const std::string& username, const std::string& password);
 
 void fetch_rooms();
-void send_chat(const std::string& room, const std::string& message);
+void join_room(const std::string& room);
+void request_rules();
+void request_history(const std::string& size);
+void send_chat(const std::string& message);

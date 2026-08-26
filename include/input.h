@@ -18,11 +18,10 @@ extern textSendType currentTextSendType;
 extern std::string currentRoom;
 
 enum Scene {
-    LOADING,
     SELECTION_MENU,
     SIGN_UP,
     SIGN_IN,
-    ROOMS_LIST,
+    RULES,
     CHAT
 };
 

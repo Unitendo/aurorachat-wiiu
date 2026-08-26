@@ -20,8 +20,12 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                     SDL_StartTextInput();
                 }
             }
-            else if (e.button == SDL_CONTROLLER_BUTTON_B) {
-                scene = ROOMS_LIST;
+        }
+        else if (scene == RULES) {
+            if (e.button == SDL_CONTROLLER_BUTTON_A) {
+                if (rulesLoaded) {
+                    scene = CHAT;
+                }
             }
         }
         else if (scene == SELECTION_MENU) {
@@ -110,8 +114,11 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         }
 
                         SaveLogin(username.c_str(), password.c_str());
-                        fetch_rooms();
-                        scene = ROOMS_LIST;
+                        join_room("general");
+                        request_rules();
+                        request_history("1024");
+
+                        scene = RULES;
                     }
                     else if (scene == SIGN_IN)
                     {
@@ -124,39 +131,17 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         }
 
                         SaveLogin(username.c_str(), password.c_str());
-                        fetch_rooms();
-                        scene = ROOMS_LIST;
+                        join_room("general");
+                        request_rules();
+                        request_history("1024");
+
+                        scene = RULES;
                     }
 
                     break;
                 }
             }
             else if (e.button == SDL_CONTROLLER_BUTTON_B) {
-                scene = SELECTION_MENU;
-            }
-        }
-        else if (scene == ROOMS_LIST) {
-            if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
-
-                if (selectedRoom > 0)
-                    selectedRoom--;
-            }
-
-            else if (e.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
-
-                if (selectedRoom < roomCount - 1)
-                    selectedRoom++;
-            }
-
-            else if (e.button == SDL_CONTROLLER_BUTTON_A) {
-
-                currentRoom = rooms[selectedRoom].name;
-
-                scene = CHAT;
-            }
-
-            else if (e.button == SDL_CONTROLLER_BUTTON_B) {
-            
                 scene = SELECTION_MENU;
             }
         }

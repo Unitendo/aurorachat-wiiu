@@ -24,7 +24,7 @@ struct ChatLine
         , avatarTexture(nullptr)
         , nameHeight(0)
         , messageHeight(0)
-        , avatarSize(48) // fixed size like Discord
+        , avatarSize(48)
     {}
 };
 
@@ -32,10 +32,6 @@ struct Room {
     char name[64];
     char description[256];
 };
-
-extern Room rooms[100];
-extern int roomCount;
-extern int selectedRoom;
 
 extern std::string currentRoom;
 
@@ -45,7 +41,6 @@ extern int chatPosY;
 void AddChatLine(SDL_Renderer* renderer,
                 const std::string& username,
                 const std::string& message,
-                const std::string& room,
                 SDL_Texture* avatar,
                 int nameFontSize,
                 int messageFontSize,

@@ -16,9 +16,6 @@
 #include "storage.h"
 #include "scale.h"
 
-// Used in multiple files, so declared here
-// -------------------------
-std::string clientVersion = "6.0";
 
 std::string username = "";
 std::string password = "";
@@ -46,11 +43,54 @@ SDL_Color tvTextColor = {255, 255, 255, 255};
 // DRC colors
 SDL_Color drcBackgroundColor = {0, 0, 0, 255};
 SDL_Color drcTextColor = {255, 255, 255, 255};
-// -------------------------
 
-// -----------------------
-// Main
-// -----------------------
+static std::vector<std::string> WrapRulesText(const std::string& text, int fontSizePx, int wrapWidthPx)
+{
+    std::vector<std::string> outLines;
+
+    int approxCharWidth = fontSizePx / 2;
+    if (approxCharWidth < 1) approxCharWidth = 1;
+    size_t maxCharsPerLine = (size_t)(wrapWidthPx / approxCharWidth);
+    if (maxCharsPerLine < 10) maxCharsPerLine = 10;
+
+    size_t start = 0;
+    while (start <= text.size())
+    {
+        size_t nl = text.find('\n', start);
+        std::string rawLine = (nl == std::string::npos)
+            ? text.substr(start)
+            : text.substr(start, nl - start);
+
+        // word-wrap
+        size_t pos = 0;
+        while (pos < rawLine.size())
+        {
+            size_t remaining = rawLine.size() - pos;
+            size_t take = std::min(maxCharsPerLine, remaining);
+
+            if (take < remaining)
+            {
+                size_t lastSpace = rawLine.rfind(' ', pos + take);
+                if (lastSpace != std::string::npos && lastSpace > pos)
+                    take = lastSpace - pos;
+            }
+
+            outLines.push_back(rawLine.substr(pos, take));
+            pos += take;
+            while (pos < rawLine.size() && rawLine[pos] == ' ') pos++;
+        }
+
+        if (rawLine.empty())
+            outLines.push_back("");
+
+        if (nl == std::string::npos) break;
+        start = nl + 1;
+    }
+
+    return outLines;
+}
+
+
 int main(int argc, char **argv)
 {
     WHBProcInit();
@@ -112,8 +152,9 @@ int main(int argc, char **argv)
 
     if (LoadLogin(username, password) && !username.empty() && !password.empty()) {
         if (login_account(username.c_str(), password.c_str())) {
-            fetch_rooms();
-            scene = ROOMS_LIST;
+            join_room("general");
+            request_history("1024");
+            scene = CHAT;
         } else {
             scene = SELECTION_MENU;
         }
@@ -128,20 +169,17 @@ int main(int argc, char **argv)
     LoadAvatars();
 
     SDL_Texture* systemAvatar = LoadImage(tvRenderer, "romfs:/res/system.png");
-    for (int i = 0; i < roomCount; i++) {
-        AddChatLine(
-            tvRenderer,
-            "System",
-            "Welcome!",
-            rooms[i].name,
-            systemAvatar,
-            SF(fontSize),
-            SF(fontSize),
-            tvTextColor,
-            tvTextColor,
-            maxWidth
-        );
-    }
+    AddChatLine(
+        tvRenderer,
+        "System",
+        "Welcome!",
+        systemAvatar,
+        SF(fontSize),
+        SF(fontSize),
+        tvTextColor,
+        tvTextColor,
+        maxWidth
+    );
 
     Uint32 lastTicks = 0;
     const int AXIS_DEADZONE = 8000;  // deadzone for joystick
@@ -179,7 +217,7 @@ int main(int argc, char **argv)
 
     lastTicks = SDL_GetTicks();
     while (WHBProcIsRunning()) {
-        if (scene == CHAT) {
+        if (scene == CHAT || scene == RULES) {
             Uint32 now = SDL_GetTicks();
             float deltaSec = (now - lastTicks) / 1000.0f;
             lastTicks = now;
@@ -187,20 +225,21 @@ int main(int argc, char **argv)
             if (gController) {
                 // ANALOG STICK
                 Sint16 axisY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_LEFTY);
+                int* targetPosY = (scene == CHAT) ? &chatPosY : &rulesScrollY;
 
                 if (axisY > AXIS_DEADZONE || axisY < -AXIS_DEADZONE) {
                     float norm = axisY / 32767.0f;
                     float move = norm * MAX_SPEED * deltaSec;
-                    chatPosY -= (int)move;
+                    *targetPosY -= (int)move;
                 }
 
                 // D-PAD
                 if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-                    chatPosY += (int)(MAX_SPEED * deltaSec);
+                    *targetPosY += (int)(MAX_SPEED * deltaSec);
                 }
 
                 if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-                    chatPosY -= (int)(MAX_SPEED * deltaSec);
+                    *targetPosY -= (int)(MAX_SPEED * deltaSec);
                 }
             }
         }
@@ -218,7 +257,7 @@ int main(int argc, char **argv)
                         if (currentTextSendType == type_message && !textBuffer.empty()) {
                             strncpy(input, textBuffer.c_str(), sizeof(input) - 1);
                             input[sizeof(input) - 1] = '\0';
-                            send_chat(currentRoom, input);
+                            send_chat(input);
                         }
                         else if (currentTextSendType == type_username) {
                             username = textBuffer;
@@ -367,50 +406,48 @@ int main(int argc, char **argv)
                 DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(930), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
             }
-            else if (scene == ROOMS_LIST) {
-                DrawText(tvRenderer, "Rooms", SX(700), SY(50), SF(128), tvTextColor);
+            else if (scene == RULES) {
+                DrawText(tvRenderer, "Server Rules", SX(600), SY(50), SF(96), tvTextColor);
 
-                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(860), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Log out: Ⓑ", SX(20), SY(930), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
+                if (!rulesLoaded) {
+                    DrawText(tvRenderer, "Loading rules...", SX(450), SY(200), SF(128), tvTextColor);
+                } else {
+                    int lineFontSize = SF(36);
+                    int lineHeight = lineFontSize + SY(8);
+                    int wrapWidth = tvWidth - SX(80);
+                
+                    std::vector<std::string> lines = WrapRulesText(
+                        serverRules.empty() ? "No rules provided." : serverRules,
+                        lineFontSize,
+                        wrapWidth
+                    );
 
-                for (int i = 0; i < roomCount; i++) {
+                    int viewTop = SY(180);
+                    int viewBottom = tvHeight - SY(160);
+                    int viewHeight = viewBottom - viewTop;
 
-                    // Highlight selected room
-                    if (selectedRoom == i) {
+                    int contentHeight = (int)lines.size() * lineHeight;
+                    int maxScroll = std::max(0, contentHeight - viewHeight);
 
-                        SDL_Rect highlightRect = {
-                            0,
-                            SY(180 + (60 * i)),
-                            tvWidth,
-                            SY(56)
-                        };
+                    if (rulesScrollY > 0) rulesScrollY = 0;
+                    if (rulesScrollY < -maxScroll) rulesScrollY = -maxScroll;
 
-                        SDL_SetRenderDrawBlendMode(
-                            tvRenderer,
-                            SDL_BLENDMODE_BLEND
-                        );
+                    SDL_Rect clipRect = { 0, viewTop, tvWidth, viewHeight };
+                    SDL_RenderSetClipRect(tvRenderer, &clipRect);
 
-                        SDL_SetRenderDrawColor(
-                            tvRenderer,
-                            0, 0, 0, 180
-                        );
-
-                        SDL_RenderFillRect(
-                            tvRenderer,
-                            &highlightRect
-                        );
+                    int y = viewTop + rulesScrollY;
+                    for (auto& line : lines) {
+                        if (y + lineHeight >= viewTop && y <= viewBottom) {
+                            DrawText(tvRenderer, line.c_str(), SX(40), y, lineFontSize, tvTextColor);
+                        }
+                        y += lineHeight;
                     }
 
-                    DrawText(
-                        tvRenderer,
-                        rooms[i].name,
-                        SX(40),
-                        SY(180 + (60 * i)),
-                        SF(48),
-                        tvTextColor
-                    );
+                    SDL_RenderSetClipRect(tvRenderer, nullptr);
                 }
+
+                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(930), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Accept & Continue: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == CHAT) {
                 DrawChatBuffer(tvRenderer, SX(40), SY(40), scaleX, scaleY);
@@ -530,53 +567,9 @@ int main(int argc, char **argv)
                     }
                 }
             }
-            else if (scene == ROOMS_LIST) {
-                DrawText(
-                    drcRenderer,
-                    ("Logged in as: " + username).c_str(),
-                    10,
-                    420,
-                    48,
-                    drcTextColor
-                );
-
-                for (int i = 0; i < roomCount; i++) {
-                
-                    // Highlight selected room
-                    if (selectedRoom == i) {
-                    
-                        SDL_Rect highlightRect = {
-                            0,
-                            40 * i,
-                            854,
-                            40
-                        };
-                    
-                        SDL_SetRenderDrawBlendMode(
-                            drcRenderer,
-                            SDL_BLENDMODE_BLEND
-                        );
-                    
-                        SDL_SetRenderDrawColor(
-                            drcRenderer,
-                            0, 0, 0, 180
-                        );
-                    
-                        SDL_RenderFillRect(
-                            drcRenderer,
-                            &highlightRect
-                        );
-                    }
-                
-                    DrawText(
-                        drcRenderer,
-                        rooms[i].name,
-                        20,
-                        40 * i + 4,
-                        32,
-                        drcTextColor
-                    );
-                }
+            else if (scene == RULES) {
+                DrawText(drcRenderer, "Read the rules on TV", 20, 20, 40, drcTextColor);
+                DrawText(drcRenderer, "Press A to continue", 20, 440, 32, drcTextColor);
             }
             else if (scene == CHAT) {
                 DrawText(
