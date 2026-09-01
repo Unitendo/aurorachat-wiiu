@@ -150,11 +150,16 @@ int main(int argc, char **argv)
 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-    if (LoadLogin(username, password) && !username.empty() && !password.empty()) {
+    bool savedAutoLogin;
+    if (LoadSettings(savedAutoLogin)) {
+        AutoLoginEnabled = savedAutoLogin;
+    }
+
+    if (AutoLoginEnabled && LoadLogin(username, password) && !username.empty() && !password.empty()) {
         if (login_account(username.c_str(), password.c_str())) {
             join_room("general");
             request_history("1024");
-            scene = CHAT;
+            scene = MAIN_MENU;
         } else {
             scene = SELECTION_MENU;
         }
@@ -197,6 +202,18 @@ int main(int argc, char **argv)
     int Keyboard_Event;
     SDL_WiiUSysWMEventType Keyboard_Ok = SDL_WIIU_SYSWM_SWKBD_OK_FINISH_EVENT;
     SDL_WiiUSysWMEventType Keyboard_Cancel = SDL_WIIU_SYSWM_SWKBD_CANCEL_EVENT;
+
+    const char* mainMenu[] = {
+        "Chat",
+        "Rules",
+        "Settings",
+        "Credits"
+    };
+
+    const char* settingsMenu[] = {
+        "Auto login",
+        "Back to Main Menu"
+    };
 
     const char* selectionMenu[] = {
         "Create Account",
@@ -345,7 +362,63 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (scene == SELECTION_MENU) {
+            if (scene == MAIN_MENU) {
+                DrawText(tvRenderer, "AuroraChat for Wii U", SX(300), SY(20), SF(128), tvTextColor);
+
+                const int mainMenuCount = 4;
+
+                for (int i = 0; i < mainMenuCount; i++) {
+                    // Highlight selected item
+                    if (mainMenuIndex == i) {
+                    
+                        SDL_Rect highlightRect = {0, SY(180 + (60 * i)), tvWidth, SY(56)};
+                    
+                        SDL_SetRenderDrawBlendMode(tvRenderer, SDL_BLENDMODE_BLEND);
+                    
+                        SDL_SetRenderDrawColor(tvRenderer, 0, 0, 0, 180);
+                    
+                        SDL_RenderFillRect(tvRenderer, &highlightRect);
+                    }
+
+                    DrawText(tvRenderer, mainMenu[i], SX(40), SY(180 + (60 * i)), SF(48), tvTextColor);
+                }
+            }
+            else if (scene == SETTINGS) {
+                DrawText(tvRenderer, "Settings", SX(650), SY(20), SF(128), tvTextColor);
+
+                const int settingsMenuCount = 2;
+
+                for (int i = 0; i < settingsMenuCount; i++) {
+                    // Highlight selected item
+                    if (settingsMenuIndex == i) {
+                    
+                        SDL_Rect highlightRect = {0, SY(180 + (60 * i)), tvWidth, SY(56)};
+                    
+                        SDL_SetRenderDrawBlendMode(tvRenderer, SDL_BLENDMODE_BLEND);
+                    
+                        SDL_SetRenderDrawColor(tvRenderer, 0, 0, 0, 180);
+                    
+                        SDL_RenderFillRect(tvRenderer, &highlightRect);
+                    }
+
+                    DrawText(tvRenderer, settingsMenu[i], SX(40), SY(180 + (60 * i)), SF(48), tvTextColor);
+
+                    if (i == 0) {
+                        if (AutoLoginEnabled)
+                            DrawText(tvRenderer, "ON", SX(600), SY(180 + (60 * i)), SF(48), {0, 255, 0, 255});
+                        else
+                            DrawText(tvRenderer, "OFF", SX(600), SY(180 + (60 * i)), SF(48), {255, 0, 0, 255});
+                    }
+                }
+            }
+            else if (scene == CREDITS) {
+                DrawText(tvRenderer, "AuroraChat for Wii U v7.0", SX(20), SY(20), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Client Developed by Funtum", SX(20), SY(180), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Server Developed by KwTheDsGuy and 3pm", SX(20), SY(260), SF(64), tvTextColor);
+
+                DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
+            }
+            else if (scene == SELECTION_MENU) {
                 DrawText(tvRenderer, "Account Setup", SX(450), SY(50), SF(128), tvTextColor);
 
                 if (showResponse) {
@@ -451,10 +524,6 @@ int main(int argc, char **argv)
             }
             else if (scene == CHAT) {
                 DrawChatBuffer(tvRenderer, SX(40), SY(40), scaleX, scaleY);
-
-                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(860), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Leave: Ⓑ", SX(20), SY(930), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Send a message: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
             }
             SDL_RenderPresent(tvRenderer);
         }
@@ -567,37 +636,65 @@ int main(int argc, char **argv)
                     }
                 }
             }
+            else if (scene == MAIN_MENU) {
+                const int mainMenuCount = 4;
+                        
+                for (int i = 0; i < mainMenuCount; i++) {
+                    // Highlight selected item
+                    if (mainMenuIndex == i) {
+                    
+                        SDL_Rect highlightRect = {0, 40 * i, 854, 40};
+                    
+                        SDL_SetRenderDrawBlendMode(drcRenderer, SDL_BLENDMODE_BLEND);
+                    
+                        SDL_SetRenderDrawColor(drcRenderer, 0, 0, 0, 180);
+                    
+                        SDL_RenderFillRect(drcRenderer, &highlightRect);
+                    }
+                
+                    DrawText(drcRenderer, mainMenu[i], 20, 40 * i + 4, 32, drcTextColor);
+                }
+            }
+            else if (scene == SETTINGS) {
+                const int settingsMenuCount = 2;
+                        
+                for (int i = 0; i < settingsMenuCount; i++) {
+                    // Highlight selected item
+                    if (settingsMenuIndex == i) {
+                    
+                        SDL_Rect highlightRect = {0, 40 * i, 854, 40};
+                    
+                        SDL_SetRenderDrawBlendMode(drcRenderer, SDL_BLENDMODE_BLEND);
+                    
+                        SDL_SetRenderDrawColor(drcRenderer, 0, 0, 0, 180);
+                    
+                        SDL_RenderFillRect(drcRenderer, &highlightRect);
+                    }
+                
+                    DrawText(drcRenderer, settingsMenu[i], 20, 40 * i + 4, 32, drcTextColor);
+                }
+            }
+            else if (scene == CREDITS) {
+                DrawText(drcRenderer, "AuroraChat for Wii U v7.0", 10, 10, 32, drcTextColor);
+                DrawText(drcRenderer, "Client Developed by Funtum", 10, 90, 32, drcTextColor);
+                DrawText(drcRenderer, "Server Developed by KwTheDsGuy and 3pm", 10, 130, 32, drcTextColor);
+
+                DrawText(drcRenderer, "Press Ⓑ to go back", 10, 440, 32, drcTextColor);
+            }
+            else if (scene == SIGN_UP || scene == SIGN_IN) {
+                DrawText(drcRenderer, "Enter text using the on-screen keyboard.", 20, 20, 32, drcTextColor);
+            }
             else if (scene == RULES) {
-                DrawText(drcRenderer, "Read the rules on TV", 20, 20, 40, drcTextColor);
-                DrawText(drcRenderer, "Press A to continue", 20, 440, 32, drcTextColor);
+                DrawText(drcRenderer, "Read the rules on TV", 10, 20, 48, drcTextColor);
+                DrawText(drcRenderer, "Press Ⓐ to continue", 10, 440, 32, drcTextColor);
             }
             else if (scene == CHAT) {
-                DrawText(
-                    drcRenderer,
-                    currentRoom.c_str(),
-                    20,
-                    20,
-                    64,
-                    drcTextColor
-                );
+                DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 48, drcTextColor);
+                DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 60, 48, drcTextColor);
 
-                DrawText(
-                    drcRenderer,
-                    ("Logged in as: " + username).c_str(),
-                    10,
-                    380,
-                    48,
-                    drcTextColor
-                );
-
-                DrawText(
-                    drcRenderer,
-                    "Press A to type a message...",
-                    10,
-                    440,
-                    32,
-                    drcTextColor
-                );
+                DrawText(drcRenderer, "Move: ↑/↓", SX(10), SY(360), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Leave: Ⓑ", SX(10), SY(400), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Send a message: Ⓐ", SX(10), SY(440), SF(32), drcTextColor);
             }
             SDL_RenderPresent(drcRenderer);
         }

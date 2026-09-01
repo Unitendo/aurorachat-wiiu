@@ -18,19 +18,24 @@ extern textSendType currentTextSendType;
 extern std::string currentRoom;
 
 enum Scene {
+    MAIN_MENU,
     SELECTION_MENU,
     SIGN_UP,
     SIGN_IN,
     RULES,
+    SETTINGS,
+    CREDITS,
     CHAT
 };
 
 extern Scene scene;
 
+extern int mainMenuIndex;
+extern int settingsMenuIndex;
 extern int selectionMenuIndex;
 extern int authMenuIndex;
 
-extern bool showResponse;
+extern bool AutoLoginEnabled;
 
 void handle_button_down(const SDL_ControllerButtonEvent& e);
 void handle_event(const SDL_Event& event);

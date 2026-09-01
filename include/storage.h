@@ -6,3 +6,6 @@
 void SaveLogin(const std::string& username, const std::string& password);
 bool LoadLogin(std::string& username, std::string& password);
 void ClearLogin();
+
+void SaveSettings(bool autoLoginEnabled);
+bool LoadSettings(bool& autoLoginEnabled);

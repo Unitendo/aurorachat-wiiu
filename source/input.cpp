@@ -3,8 +3,12 @@
 #include "net.h"
 #include "storage.h"
 
+int mainMenuIndex = 0;
+int settingsMenuIndex = 0;
 int selectionMenuIndex = 0;
 int authMenuIndex = 0;
+
+bool AutoLoginEnabled = true;
 
 void handle_button_down(const SDL_ControllerButtonEvent& e)
 {
@@ -20,11 +24,87 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                     SDL_StartTextInput();
                 }
             }
+            if (e.button == SDL_CONTROLLER_BUTTON_B) {
+                scene = MAIN_MENU;
+            }
         }
         else if (scene == RULES) {
             if (e.button == SDL_CONTROLLER_BUTTON_A) {
-                if (rulesLoaded) {
-                    scene = CHAT;
+                scene = CHAT;
+            }
+        }
+        else if (scene == SETTINGS) {
+            if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
+
+                settingsMenuIndex--;
+
+                if (settingsMenuIndex < 0)
+                    settingsMenuIndex = 1;
+            }
+
+            else if (e.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
+
+                settingsMenuIndex++;
+
+                if (settingsMenuIndex > 1)
+                    settingsMenuIndex = 0;
+            }
+
+            else if (e.button == SDL_CONTROLLER_BUTTON_A) {
+
+                switch (settingsMenuIndex) {
+
+                    case 0:
+                        AutoLoginEnabled = !AutoLoginEnabled;
+                        SaveSettings(AutoLoginEnabled);
+                        break;
+
+                    case 1:
+                        scene = MAIN_MENU;
+                        break;
+                }
+            }
+        }
+        else if (scene == CREDITS) {
+            if (e.button == SDL_CONTROLLER_BUTTON_B)
+                scene = MAIN_MENU;
+        }
+        else if (scene == MAIN_MENU) {
+            if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
+
+                mainMenuIndex--;
+
+                if (mainMenuIndex < 0)
+                    mainMenuIndex = 3;
+            }
+
+            else if (e.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
+
+                mainMenuIndex++;
+
+                if (mainMenuIndex > 3)
+                    mainMenuIndex = 0;
+            }
+
+            else if (e.button == SDL_CONTROLLER_BUTTON_A) {
+
+                switch (mainMenuIndex) {
+
+                    case 0:
+                        scene = CHAT;
+                        break;
+
+                    case 1:
+                        scene = RULES;
+                        request_rules();
+                        break;
+
+                    case 2:
+                        scene = SETTINGS;
+                        break;
+                    case 3:
+                        scene = CREDITS;
+                        break;
                 }
             }
         }

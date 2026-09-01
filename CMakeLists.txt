@@ -43,8 +43,8 @@ add_custom_command(TARGET aurorachat-wiiu POST_BUILD
     COMMAND wuhbtool
         ${CMAKE_CURRENT_BINARY_DIR}/aurorachat-wiiu.rpx
         ${CMAKE_CURRENT_BINARY_DIR}/aurorachat-wiiu.wuhb
-        --name "aurorachat for Wii U"
-        --short-name "aurorachat"
+        --name "AuroraChat for Wii U"
+        --short-name "AuroraChat"
         --author "Funtum"
         --icon ${CMAKE_SOURCE_DIR}/meta/icon.png
         --tv-image ${CMAKE_SOURCE_DIR}/meta/banner.png
