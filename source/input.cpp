@@ -35,31 +35,28 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
         }
         else if (scene == SETTINGS) {
             if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
-
                 settingsMenuIndex--;
-
                 if (settingsMenuIndex < 0)
-                    settingsMenuIndex = 1;
+                    settingsMenuIndex = 2;
             }
-
             else if (e.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
-
                 settingsMenuIndex++;
-
-                if (settingsMenuIndex > 1)
+                if (settingsMenuIndex > 2)
                     settingsMenuIndex = 0;
             }
-
             else if (e.button == SDL_CONTROLLER_BUTTON_A) {
-
                 switch (settingsMenuIndex) {
-
                     case 0:
                         AutoLoginEnabled = !AutoLoginEnabled;
-                        SaveSettings(AutoLoginEnabled);
+                        SaveSettings(AutoLoginEnabled, AutoScrollEnabled);
                         break;
 
                     case 1:
+                        AutoScrollEnabled = !AutoScrollEnabled;
+                        SaveSettings(AutoLoginEnabled, AutoScrollEnabled);
+                        break;
+                
+                    case 2:
                         scene = MAIN_MENU;
                         break;
                 }

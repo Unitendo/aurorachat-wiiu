@@ -151,8 +151,10 @@ int main(int argc, char **argv)
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
     bool savedAutoLogin;
-    if (LoadSettings(savedAutoLogin)) {
+    bool savedAutoScroll;
+    if (LoadSettings(savedAutoLogin, savedAutoScroll)) {
         AutoLoginEnabled = savedAutoLogin;
+        AutoScrollEnabled = savedAutoScroll;
     }
 
     if (AutoLoginEnabled && LoadLogin(username, password) && !username.empty() && !password.empty()) {
@@ -212,6 +214,7 @@ int main(int argc, char **argv)
 
     const char* settingsMenu[] = {
         "Auto login",
+        "Auto scroll",
         "Back to Main Menu"
     };
 
@@ -386,7 +389,7 @@ int main(int argc, char **argv)
             else if (scene == SETTINGS) {
                 DrawText(tvRenderer, "Settings", SX(650), SY(20), SF(128), tvTextColor);
 
-                const int settingsMenuCount = 2;
+                const int settingsMenuCount = 3;
 
                 for (int i = 0; i < settingsMenuCount; i++) {
                     // Highlight selected item
@@ -405,6 +408,12 @@ int main(int argc, char **argv)
 
                     if (i == 0) {
                         if (AutoLoginEnabled)
+                            DrawText(tvRenderer, "ON", SX(600), SY(180 + (60 * i)), SF(48), {0, 255, 0, 255});
+                        else
+                            DrawText(tvRenderer, "OFF", SX(600), SY(180 + (60 * i)), SF(48), {255, 0, 0, 255});
+                    }
+                    else if (i == 1) {
+                        if (AutoScrollEnabled)
                             DrawText(tvRenderer, "ON", SX(600), SY(180 + (60 * i)), SF(48), {0, 255, 0, 255});
                         else
                             DrawText(tvRenderer, "OFF", SX(600), SY(180 + (60 * i)), SF(48), {255, 0, 0, 255});
@@ -656,7 +665,7 @@ int main(int argc, char **argv)
                 }
             }
             else if (scene == SETTINGS) {
-                const int settingsMenuCount = 2;
+                const int settingsMenuCount = 3;
                         
                 for (int i = 0; i < settingsMenuCount; i++) {
                     // Highlight selected item

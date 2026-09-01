@@ -47,33 +47,39 @@ void ClearLogin()
     remove(accountFile);
 }
 
-void SaveSettings(bool autoLoginEnabled)
+void SaveSettings(bool autoLoginEnabled, bool autoScrollEnabled)
 {
     FILE* file = fopen(settingsFile, "w");
     if (!file)
         return;
 
     fprintf(file, "%d\n", autoLoginEnabled ? 1 : 0);
+    fprintf(file, "%d\n", autoScrollEnabled ? 1 : 0);
 
     fclose(file);
 }
 
-bool LoadSettings(bool& autoLoginEnabled)
+bool LoadSettings(bool& autoLoginEnabled, bool& autoScrollEnabled)
 {
     FILE* file = fopen(settingsFile, "r");
     if (!file)
         return false;
 
-    char buf[16];
-    if (!fgets(buf, sizeof(buf), file)) {
+    char line1[16];
+    char line2[16];
+
+    if (!fgets(line1, sizeof(line1), file)) {
         fclose(file);
         return false;
     }
+    autoLoginEnabled = (atoi(line1) != 0);
+
+    if (fgets(line2, sizeof(line2), file)) {
+        autoScrollEnabled = (atoi(line2) != 0);
+    } else {
+        autoScrollEnabled = true;
+    }
 
     fclose(file);
-
-    buf[strcspn(buf, "\n")] = 0;
-    autoLoginEnabled = (atoi(buf) != 0);
-
     return true;
 }
