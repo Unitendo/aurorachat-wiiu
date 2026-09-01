@@ -27,6 +27,13 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
             if (e.button == SDL_CONTROLLER_BUTTON_B) {
                 scene = MAIN_MENU;
             }
+            if (e.button == SDL_CONTROLLER_BUTTON_Y) {
+                if (!connectionLost) {
+                    currentTextSendType = type_room;
+                    SDL_WiiUSetSWKBDHintText("Enter a room name...\n\nYou can also DM a user with @[username] where [username] is their username. Both users need to do this to DM each other.");
+                    SDL_StartTextInput();
+                }
+            }
         }
         else if (scene == RULES) {
             if (e.button == SDL_CONTROLLER_BUTTON_A) {

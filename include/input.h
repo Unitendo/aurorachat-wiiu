@@ -10,6 +10,7 @@ enum textSendType {
     type_username,
     type_password,
     type_message,
+    type_room,
     type_none
 };
 

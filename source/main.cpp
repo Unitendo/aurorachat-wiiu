@@ -176,17 +176,7 @@ int main(int argc, char **argv)
     LoadAvatars();
 
     SDL_Texture* systemAvatar = LoadImage(tvRenderer, "romfs:/res/system.png");
-    AddChatLine(
-        tvRenderer,
-        "System",
-        "Welcome!",
-        systemAvatar,
-        SF(fontSize),
-        SF(fontSize),
-        tvTextColor,
-        tvTextColor,
-        maxWidth
-    );
+    AddChatLine(tvRenderer, "System", "Welcome!", systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth);
 
     Uint32 lastTicks = 0;
     const int AXIS_DEADZONE = 8000;  // deadzone for joystick
@@ -284,6 +274,14 @@ int main(int argc, char **argv)
                         }
                         else if (currentTextSendType == type_password) {
                             password = textBuffer;
+                        }
+                        else if (currentTextSendType == type_room && !textBuffer.empty()) {
+                            join_room(textBuffer.c_str());
+                            currentRoom = textBuffer;
+                            chatLines.clear();
+                            chatPosY = 0;
+                            AddChatLine(tvRenderer, "System", ("Room changed to " + textBuffer).c_str(), systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth);
+                            request_history("1024");
                         }
                     }
                     textBuffer.clear();
@@ -701,8 +699,9 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 48, drcTextColor);
                 DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 60, 48, drcTextColor);
 
-                DrawText(drcRenderer, "Move: ↑/↓", SX(10), SY(360), SF(32), drcTextColor);
-                DrawText(drcRenderer, "Leave: Ⓑ", SX(10), SY(400), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Move: ↑/↓", SX(10), SY(320), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Leave: Ⓑ", SX(10), SY(360), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Change room: Ⓨ", SX(10), SY(400), SF(32), drcTextColor);
                 DrawText(drcRenderer, "Send a message: Ⓐ", SX(10), SY(440), SF(32), drcTextColor);
             }
             SDL_RenderPresent(drcRenderer);
