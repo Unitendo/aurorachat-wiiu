@@ -433,7 +433,7 @@ int main(int argc, char **argv)
                 DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == SELECTION_MENU) {
-                DrawText(tvRenderer, "Account Setup", SX(450), SY(50), SF(128), tvTextColor);
+                DrawText(tvRenderer, "Account Setup", SX(450), SY(30), SF(128), tvTextColor);
 
                 if (showResponse) {
                     DrawText(tvRenderer, ("Error: " + authError).c_str(), SX(20), SY(860), SF(64), tvTextColor);
@@ -482,19 +482,21 @@ int main(int argc, char **argv)
                 }
             }
             else if (scene == SIGN_UP) {
-                DrawText(tvRenderer, "Create Account", SX(450), SY(50), SF(128), tvTextColor);
+                DrawText(tvRenderer, "Create Account", SX(450), SY(30), SF(128), tvTextColor);
 
-                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(930), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(860), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(930), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == SIGN_IN) {
-                DrawText(tvRenderer, "Logging In", SX(550), SY(50), SF(128), tvTextColor);
+                DrawText(tvRenderer, "Logging In", SX(550), SY(30), SF(128), tvTextColor);
 
-                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(930), SF(64), tvTextColor);
-                DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(860), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(930), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == RULES) {
-                DrawText(tvRenderer, "Server Rules", SX(600), SY(50), SF(96), tvTextColor);
+                DrawText(tvRenderer, "Server Rules", SX(600), SY(30), SF(96), tvTextColor);
 
                 if (!rulesLoaded) {
                     DrawText(tvRenderer, "Loading rules...", SX(450), SY(200), SF(128), tvTextColor);
