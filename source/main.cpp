@@ -237,11 +237,13 @@ int main(int argc, char **argv)
 
             if (gController) {
                 // ANALOG STICK
-                Sint16 axisY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_LEFTY);
+                Sint16 axisLeftY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_LEFTY);
+                Sint16 axisRightY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_RIGHTY);
                 int* targetPosY = (scene == CHAT) ? &chatPosY : &rulesScrollY;
 
-                if (axisY > AXIS_DEADZONE || axisY < -AXIS_DEADZONE) {
-                    float norm = axisY / 32767.0f;
+                if (axisLeftY > AXIS_DEADZONE || axisLeftY < -AXIS_DEADZONE ||
+                    axisRightY > AXIS_DEADZONE || axisRightY < -AXIS_DEADZONE) {
+                    float norm = axisLeftY / 32767.0f + axisRightY / 32767.0f;
                     float move = norm * MAX_SPEED * deltaSec;
                     *targetPosY -= (int)move;
                 }
