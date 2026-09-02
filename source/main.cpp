@@ -208,6 +208,7 @@ int main(int argc, char **argv)
     const char* settingsMenu[] = {
         "Auto-Login",
         "Auto-Scroll",
+        "Log out",
         "Back to Main Menu"
     };
 
@@ -392,7 +393,7 @@ int main(int argc, char **argv)
             else if (scene == SETTINGS) {
                 DrawText(tvRenderer, "Settings", SX(650), SY(20), SF(128), tvTextColor);
 
-                const int settingsMenuCount = 3;
+                const int settingsMenuCount = 4;
 
                 for (int i = 0; i < settingsMenuCount; i++) {
                     // Highlight selected item
@@ -669,7 +670,7 @@ int main(int argc, char **argv)
                 }
             }
             else if (scene == SETTINGS) {
-                const int settingsMenuCount = 3;
+                const int settingsMenuCount = 4;
                         
                 for (int i = 0; i < settingsMenuCount; i++) {
                     // Highlight selected item
@@ -684,19 +685,19 @@ int main(int argc, char **argv)
                         SDL_RenderFillRect(drcRenderer, &highlightRect);
                     }
                 
-                    DrawText(drcRenderer, settingsMenu[i], 20, 40 * i + 4, 36, drcTextColor);
+                    DrawText(drcRenderer, settingsMenu[i], 20, 40 * i, 36, drcTextColor);
 
                     if (i == 0) {
                         if (AutoLoginEnabled)
-                            DrawText(drcRenderer, "ON", 300, 40 * i + 4, 36, {0, 255, 0, 255});
+                            DrawText(drcRenderer, "ON", 300, 40 * i, 36, {0, 255, 0, 255});
                         else
-                            DrawText(drcRenderer, "OFF", 300, 40 * i + 4, 36, {255, 0, 0, 255});
+                            DrawText(drcRenderer, "OFF", 300, 40 * i, 36, {255, 0, 0, 255});
                     }
                     else if (i == 1) {
                         if (AutoScrollEnabled)
-                            DrawText(drcRenderer, "ON", 300, 40 * i + 4, 36, {0, 255, 0, 255});
+                            DrawText(drcRenderer, "ON", 300, 40 * i, 36, {0, 255, 0, 255});
                         else
-                            DrawText(drcRenderer, "OFF", 300, 40 * i + 4, 36, {255, 0, 0, 255});
+                            DrawText(drcRenderer, "OFF", 300, 40 * i, 36, {255, 0, 0, 255});
                     }
                 }
             }

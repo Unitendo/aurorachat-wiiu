@@ -44,11 +44,11 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
             if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
                 settingsMenuIndex--;
                 if (settingsMenuIndex < 0)
-                    settingsMenuIndex = 2;
+                    settingsMenuIndex = 3;
             }
             else if (e.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
                 settingsMenuIndex++;
-                if (settingsMenuIndex > 2)
+                if (settingsMenuIndex > 3)
                     settingsMenuIndex = 0;
             }
             else if (e.button == SDL_CONTROLLER_BUTTON_A) {
@@ -62,8 +62,20 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         AutoScrollEnabled = !AutoScrollEnabled;
                         SaveSettings(AutoLoginEnabled, AutoScrollEnabled);
                         break;
-                
+
                     case 2:
+                        part_room();
+                        ClearLogin();
+                        username.clear();
+                        password.clear();
+                        chatLines.clear();
+                        chatPosY = 0;
+                        currentRoom = "general";
+                        settingsMenuIndex = 0;
+                        scene = SELECTION_MENU;
+                        break;
+
+                    case 3:
                         scene = MAIN_MENU;
                         break;
                 }

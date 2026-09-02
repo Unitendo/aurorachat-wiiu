@@ -61,6 +61,7 @@ bool login_account(const std::string& username, const std::string& password);
 
 void fetch_rooms();
 void join_room(const std::string& room);
+void part_room();
 void request_rules();
 void request_history(const std::string& size);
 void send_chat(const std::string& message);

@@ -391,6 +391,14 @@ void join_room(const std::string& room)
 }
 
 
+void part_room()
+{
+    if (sock < 0) return;
+
+    SendCommand(sock, "part", {});
+}
+
+
 void request_rules()
 {
     if (sock < 0) return;
