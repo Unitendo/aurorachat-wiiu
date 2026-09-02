@@ -736,6 +736,10 @@ int main(int argc, char **argv)
         close(sock);
     }
 
+    if (!AutoLoginEnabled) {
+        ClearLogin();
+    }
+
     if (gController)
         SDL_GameControllerClose(gController);
 
