@@ -683,7 +683,20 @@ int main(int argc, char **argv)
                         SDL_RenderFillRect(drcRenderer, &highlightRect);
                     }
                 
-                    DrawText(drcRenderer, settingsMenu[i], 20, 40 * i + 4, 32, drcTextColor);
+                    DrawText(drcRenderer, settingsMenu[i], 20, 40 * i + 4, 36, drcTextColor);
+
+                    if (i == 0) {
+                        if (AutoLoginEnabled)
+                            DrawText(drcRenderer, "ON", 300, 40 * i + 4, 36, {0, 255, 0, 255});
+                        else
+                            DrawText(drcRenderer, "OFF", 300, 40 * i + 4, 36, {255, 0, 0, 255});
+                    }
+                    else if (i == 1) {
+                        if (AutoScrollEnabled)
+                            DrawText(drcRenderer, "ON", 300, 40 * i + 4, 36, {0, 255, 0, 255});
+                        else
+                            DrawText(drcRenderer, "OFF", 300, 40 * i + 4, 36, {255, 0, 0, 255});
+                    }
                 }
             }
             else if (scene == CREDITS) {
