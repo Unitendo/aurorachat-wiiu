@@ -9,18 +9,10 @@ std::string currentRoom = "general";
 
 bool AutoScrollEnabled = true;
 
-void AddChatLine(SDL_Renderer* renderer,
-                const std::string& username,
-                const std::string& message,
-                SDL_Texture* avatar,
-                int nameFontSize,
-                int messageFontSize,
-                SDL_Color nameColor,
-                SDL_Color messageColor,
-                int maxWidth)
+void AddChatLine(SDL_Renderer* renderer, const std::string& username, const std::string& message, SDL_Texture* avatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int maxWidth, int chatViewHeight)
 {
-    const int avatarSize = 128;
-    const int avatarPadding = 8;
+    const int avatarSize = SF(128);
+    const int avatarPadding = SF(8);
 
     ChatLine line;
     line.username = username;
@@ -31,24 +23,8 @@ void AddChatLine(SDL_Renderer* renderer,
     int textStartX = avatarSize + avatarPadding;
     int wrapWidth = maxWidth - textStartX;
 
-    line.nameTexture = DrawTextToTexture(
-        renderer,
-        username.c_str(),
-        nameFontSize,
-        nameColor,
-        wrapWidth,
-        true // bold
-    );
-
-    // Message texture (wraps)
-    line.messageTexture = DrawTextToTexture(
-        renderer,
-        message.c_str(),
-        messageFontSize,
-        messageColor,
-        wrapWidth,
-        false // not bold
-    );
+    line.nameTexture = DrawTextToTexture(renderer, username.c_str(), nameFontSize, nameColor, wrapWidth, true);
+    line.messageTexture = DrawTextToTexture(renderer, message.c_str(), messageFontSize, messageColor, wrapWidth, false);
 
     if (!line.nameTexture || !line.messageTexture)
         return;
@@ -65,24 +41,21 @@ void AddChatLine(SDL_Renderer* renderer,
     // Auto-scroll to bottom
     if (AutoScrollEnabled)
     {
-        const int CHAT_VIEW_HEIGHT = 1050;
-
         int totalHeight = 0;
-
         for (auto& l : chatLines)
         {
             totalHeight += (l.nameHeight - SF(32));
             totalHeight += l.messageHeight;
         }
 
-        chatPosY = CHAT_VIEW_HEIGHT - totalHeight;
+        chatPosY = chatViewHeight - totalHeight;
 
         if (chatPosY > 0)
             chatPosY = 0;
     }
 }
 
-void DrawChatBuffer(SDL_Renderer* renderer, int x, int y, float scaleX, float scaleY)
+void DrawChatBuffer(SDL_Renderer* renderer, int x, int y)
 {
     const int avatarSize = SF(128);
     const int avatarPadding = SF(8);

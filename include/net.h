@@ -53,7 +53,7 @@ int ConnectToTCPServer();
 void ReconnectToTCPServer();
 int ConnectToHTTPServer();
 
-void TryReceive(int *sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth);
+void TryReceive(int *sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth, int chatViewHeight);
 std::string send_post_request(const std::string& endpoint, const std::string& body);
 
 bool create_account(const std::string& username, const std::string& password);

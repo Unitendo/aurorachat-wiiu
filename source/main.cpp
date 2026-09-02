@@ -25,7 +25,7 @@ textSendType currentTextSendType = type_none;
 Scene scene = SELECTION_MENU;
 
 int fontSize = 48;
-int maxWidth = 1920 - 40;
+int maxWidth = 0;
 
 int sock = ConnectToTCPServer();
 
@@ -135,8 +135,11 @@ int main(int argc, char **argv)
 
     SDL_GetRendererOutputSize(tvRenderer, &tvWidth, &tvHeight);
 
-    float scaleX = tvWidth / 1920.0f;
-    float scaleY = tvHeight / 1080.0f;
+    scaleX = tvWidth / 1920.0f;
+    scaleY = tvHeight / 1080.0f;
+
+    maxWidth = tvWidth - SX(40);
+    int chatViewHeight = tvHeight - SY(80);
 
     // GamePad Window
     drcWindow = SDL_CreateWindow("DRC",
@@ -176,7 +179,7 @@ int main(int argc, char **argv)
     LoadAvatars();
 
     SDL_Texture* systemAvatar = LoadImage(tvRenderer, "romfs:/res/system.png");
-    AddChatLine(tvRenderer, "System", "Welcome!", systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth);
+    AddChatLine(tvRenderer, "System", "Welcome!", systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight);
 
     Uint32 lastTicks = 0;
     const int AXIS_DEADZONE = 8000;  // deadzone for joystick
@@ -203,8 +206,8 @@ int main(int argc, char **argv)
     };
 
     const char* settingsMenu[] = {
-        "Auto login",
-        "Auto scroll",
+        "Auto-Login",
+        "Auto-Scroll",
         "Back to Main Menu"
     };
 
@@ -280,7 +283,7 @@ int main(int argc, char **argv)
                             currentRoom = textBuffer;
                             chatLines.clear();
                             chatPosY = 0;
-                            AddChatLine(tvRenderer, "System", ("Room changed to " + textBuffer).c_str(), systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth);
+                            AddChatLine(tvRenderer, "System", ("Room changed to " + textBuffer).c_str(), systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight);
                             request_history("1024");
                         }
                     }
@@ -292,7 +295,7 @@ int main(int argc, char **argv)
         }
 
         // Handle incoming messages
-        TryReceive(&sock, tvRenderer, SF(fontSize), tvTextColor, maxWidth);
+        TryReceive(&sock, tvRenderer, SF(fontSize), tvTextColor, maxWidth, chatViewHeight);
 
         // Render TV Screen
         if (tvRenderer) {
@@ -419,7 +422,7 @@ int main(int argc, char **argv)
                 }
             }
             else if (scene == CREDITS) {
-                DrawText(tvRenderer, "AuroraChat for Wii U v7.0", SX(20), SY(20), SF(64), tvTextColor);
+                DrawText(tvRenderer, "AuroraChat for Wii U v7.1", SX(20), SY(20), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Client Developed by Funtum", SX(20), SY(180), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Server Developed by KwTheDsGuy and 3pm", SX(20), SY(260), SF(64), tvTextColor);
 
@@ -530,7 +533,7 @@ int main(int argc, char **argv)
                 DrawText(tvRenderer, "Accept & Continue: Ⓐ", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == CHAT) {
-                DrawChatBuffer(tvRenderer, SX(40), SY(40), scaleX, scaleY);
+                DrawChatBuffer(tvRenderer, SX(40), SY(40));
             }
             SDL_RenderPresent(tvRenderer);
         }
@@ -682,7 +685,7 @@ int main(int argc, char **argv)
                 }
             }
             else if (scene == CREDITS) {
-                DrawText(drcRenderer, "AuroraChat for Wii U v7.0", 10, 10, 32, drcTextColor);
+                DrawText(drcRenderer, "AuroraChat for Wii U v7.1", 10, 10, 32, drcTextColor);
                 DrawText(drcRenderer, "Client Developed by Funtum", 10, 90, 32, drcTextColor);
                 DrawText(drcRenderer, "Server Developed by KwTheDsGuy and 3pm", 10, 130, 32, drcTextColor);
 

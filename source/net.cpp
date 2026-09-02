@@ -418,7 +418,7 @@ void send_chat(const std::string& message)
     SendCommand(sock, "msg", { message });
 }
 
-void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth)
+void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth, int chatViewHeight)
 {
     if (*sock < 0) return;
 
@@ -447,17 +447,7 @@ void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
 
                     SDL_Texture* avatar = (user == "auroracross") ? discordAvatar : defaultAvatar;
 
-                    AddChatLine(
-                        renderer,
-                        user,
-                        message,
-                        avatar,
-                        fontSize,
-                        fontSize,
-                        textColor,
-                        textColor,
-                        maxWidth
-                    );
+                    AddChatLine(renderer, user, message, avatar, fontSize, fontSize, textColor, textColor, maxWidth, chatViewHeight);
                 }
                 else if (cmd == "err")
                 {

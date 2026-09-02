@@ -40,14 +40,6 @@ extern std::string currentRoom;
 extern std::vector<ChatLine> chatLines;
 extern int chatPosY;
 
-void AddChatLine(SDL_Renderer* renderer,
-                const std::string& username,
-                const std::string& message,
-                SDL_Texture* avatar,
-                int nameFontSize,
-                int messageFontSize,
-                SDL_Color nameColor,
-                SDL_Color messageColor,
-                int maxWidth);
+void AddChatLine(SDL_Renderer* renderer, const std::string& username, const std::string& message, SDL_Texture* avatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int maxWidth, int chatViewHeight);
 
-void DrawChatBuffer(SDL_Renderer* renderer, int x, int y, float scaleX, float scaleY);
+void DrawChatBuffer(SDL_Renderer* renderer, int x, int y);
