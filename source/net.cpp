@@ -445,7 +445,7 @@ void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
                     std::string user = UrlDecode(parts[1]);
                     std::string message = UrlDecode(parts[2]);
 
-                    SDL_Texture* avatar = (user == "auroracross") ? discordAvatar : defaultAvatar;
+                    SDL_Texture* avatar = (user.find("[DISCORD]") != std::string::npos) ? discordAvatar : defaultAvatar;
 
                     AddChatLine(renderer, user, message, avatar, fontSize, fontSize, textColor, textColor, maxWidth, chatViewHeight);
                 }
