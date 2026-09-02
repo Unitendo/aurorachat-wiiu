@@ -427,6 +427,7 @@ int main(int argc, char **argv)
                 DrawText(tvRenderer, "AuroraChat for Wii U v7.1", SX(20), SY(20), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Client Developed by Funtum", SX(20), SY(180), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Server Developed by KwTheDsGuy and 3pm", SX(20), SY(260), SF(64), tvTextColor);
+                DrawText(tvRenderer, "Icon and banner by hugh", SX(20), SY(340), SF(64), tvTextColor);
 
                 DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
             }
@@ -703,6 +704,7 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, "AuroraChat for Wii U v7.1", 10, 10, 32, drcTextColor);
                 DrawText(drcRenderer, "Client Developed by Funtum", 10, 90, 32, drcTextColor);
                 DrawText(drcRenderer, "Server Developed by KwTheDsGuy and 3pm", 10, 130, 32, drcTextColor);
+                DrawText(drcRenderer, "Icon and banner by hugh", 10, 170, 32, drcTextColor);
 
                 DrawText(drcRenderer, "Press Ⓑ to go back", 10, 440, 32, drcTextColor);
             }
