@@ -722,10 +722,10 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 48, drcTextColor);
                 DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 60, 48, drcTextColor);
 
-                DrawText(drcRenderer, "Move: ↑/↓", SX(10), SY(320), SF(32), drcTextColor);
-                DrawText(drcRenderer, "Leave: Ⓑ", SX(10), SY(360), SF(32), drcTextColor);
-                DrawText(drcRenderer, "Change room: Ⓨ", SX(10), SY(400), SF(32), drcTextColor);
-                DrawText(drcRenderer, "Send a message: Ⓐ", SX(10), SY(440), SF(32), drcTextColor);
+                DrawText(drcRenderer, "Move: ↑/↓", 10, 320, 32, drcTextColor);
+                DrawText(drcRenderer, "Leave: Ⓑ", 10, 360, 32, drcTextColor);
+                DrawText(drcRenderer, "Change room: Ⓨ", 10, 400, 32, drcTextColor);
+                DrawText(drcRenderer, "Send a message: Ⓐ", 10, 440, 32, drcTextColor);
             }
             SDL_RenderPresent(drcRenderer);
         }
