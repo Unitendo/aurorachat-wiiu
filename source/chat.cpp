@@ -7,7 +7,21 @@ int chatPosY = 0;
 
 std::string currentRoom = "general";
 
-bool AutoScrollEnabled = true;
+bool AutoScrollEnabled = false;
+
+void ScrollChatToBottom(int tvChatViewHeight)
+{
+    int totalHeight = 0;
+    for (auto& l : chatLines)
+    {
+        totalHeight += (l.nameHeight - SF(32));
+        totalHeight += l.messageHeight;
+    }
+
+    chatPosY = tvChatViewHeight - totalHeight;
+    if (chatPosY > 0)
+        chatPosY = 0;
+}
 
 void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight)
 {
@@ -59,16 +73,7 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
     // Auto-scroll to bottom
     if (AutoScrollEnabled)
     {
-        int totalHeight = 0;
-        for (auto& l : chatLines)
-        {
-            totalHeight += (l.nameHeight - SF(32));
-            totalHeight += l.messageHeight;
-        }
-
-        chatPosY = tvChatViewHeight - totalHeight;
-        if (chatPosY > 0)
-            chatPosY = 0;
+        ScrollChatToBottom(tvChatViewHeight);
     }
 }
 

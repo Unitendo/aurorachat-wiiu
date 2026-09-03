@@ -36,6 +36,8 @@ extern int settingsMenuIndex;
 extern int selectionMenuIndex;
 extern int authMenuIndex;
 
+extern int chatViewHeight;
+
 extern bool AutoLoginEnabled;
 
 void handle_button_down(const SDL_ControllerButtonEvent& e);

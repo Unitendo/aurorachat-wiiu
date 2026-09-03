@@ -26,6 +26,7 @@ Scene scene = SELECTION_MENU;
 
 int fontSize = 48;
 int maxWidth = 0;
+int chatViewHeight = 0;
 
 int drcMaxWidth = 854 - 20;
 int drcChatViewHeight = 480 - 40;
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
     scaleY = tvHeight / 1080.0f;
 
     maxWidth = tvWidth - SX(40);
-    int chatViewHeight = tvHeight - SY(80);
+    chatViewHeight = tvHeight - SY(80);
 
     // GamePad Window
     drcWindow = SDL_CreateWindow("DRC",

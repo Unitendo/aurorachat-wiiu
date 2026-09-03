@@ -38,6 +38,7 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
         }
         else if (scene == RULES) {
             if (e.button == SDL_CONTROLLER_BUTTON_A) {
+                ScrollChatToBottom(chatViewHeight);
                 scene = CHAT;
             }
         }
@@ -115,6 +116,7 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                 switch (mainMenuIndex) {
 
                     case 0:
+                        ScrollChatToBottom(chatViewHeight);
                         scene = CHAT;
                         break;
 

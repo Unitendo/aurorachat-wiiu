@@ -29,6 +29,8 @@ extern int chatPosY;
 extern std::string currentRoom;
 extern bool AutoScrollEnabled;
 
+void ScrollChatToBottom(int tvChatViewHeight);
+
 void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight);
 
 void DrawChatBuffer(SDL_Renderer* renderer, int x, int y);
