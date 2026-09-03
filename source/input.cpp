@@ -82,6 +82,10 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         break;
                 }
             }
+            else if (e.button == SDL_CONTROLLER_BUTTON_B) {
+                request_motd();
+                scene = MAIN_MENU;
+            }
         }
         else if (scene == CREDITS) {
             if (e.button == SDL_CONTROLLER_BUTTON_B) {
@@ -187,7 +191,6 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         SDL_WiiUSetSWKBDInitialText(username.c_str());
                         SDL_WiiUSetSWKBDHintText("Enter a username...");
                         SDL_StartTextInput();
-                        authMenuIndex = 0;
                         break;
 
                     case 1:
