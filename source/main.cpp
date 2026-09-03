@@ -715,6 +715,38 @@ int main(int argc, char **argv)
                 
                     DrawText(drcRenderer, mainMenu[i], 20, 40 * i + 4, 32, drcTextColor);
                 }
+
+                DrawText(drcRenderer, "MOTD:", 10, 190, 24, drcTextColor);
+
+                if (!motdLoaded) {
+                    DrawText(drcRenderer, "Loading MOTD...", 10, 220, 20, drcTextColor);
+                } else {
+                    int lineFontSize = 18;
+                    int lineHeight = lineFontSize + 4;
+                    int wrapWidth = 854 - 20;
+
+                    std::vector<std::string> lines = WrapRulesText(
+                        serverMOTD.empty() ? "No MOTD provided." : serverMOTD,
+                        lineFontSize,
+                        wrapWidth
+                    );
+
+                    int viewTop = 220;
+                    int viewBottom = 470;
+
+                    SDL_Rect clipRect = { 0, viewTop, 854, viewBottom - viewTop };
+                    SDL_RenderSetClipRect(drcRenderer, &clipRect);
+
+                    int y = viewTop + motdScrollY;
+                    for (auto& line : lines) {
+                        if (y + lineHeight >= viewTop && y <= viewBottom) {
+                            DrawText(drcRenderer, line.c_str(), 10, y, lineFontSize, drcTextColor);
+                        }
+                        y += lineHeight;
+                    }
+
+                    SDL_RenderSetClipRect(drcRenderer, nullptr);
+                }
             }
             else if (scene == SETTINGS) {
                 const int settingsMenuCount = 4;
@@ -731,7 +763,7 @@ int main(int argc, char **argv)
                     
                         SDL_RenderFillRect(drcRenderer, &highlightRect);
                     }
-                
+
                     DrawText(drcRenderer, settingsMenu[i], 20, 40 * i, 36, drcTextColor);
 
                     if (i == 0) {
@@ -760,12 +792,71 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, "Enter text using the on-screen keyboard.", 20, 20, 32, drcTextColor);
             }
             else if (scene == RULES) {
-                DrawText(drcRenderer, "Read the rules on TV", 10, 20, 48, drcTextColor);
+                DrawText(drcRenderer, "Server Rules", 10, 10, 32, drcTextColor);
+
+                if (!rulesLoaded) {
+                    DrawText(drcRenderer, "Loading rules...", 10, 60, 24, drcTextColor);
+                } else {
+                    int lineFontSize = 18;
+                    int lineHeight = lineFontSize + 4;
+                    int wrapWidth = 854 - 20;
+
+                    std::vector<std::string> lines = WrapRulesText(
+                        serverRules.empty() ? "No rules provided." : serverRules,
+                        lineFontSize,
+                        wrapWidth
+                    );
+
+                    int viewTop = 60;
+                    int viewBottom = 400;
+
+                    SDL_Rect clipRect = { 0, viewTop, 854, viewBottom - viewTop };
+                    SDL_RenderSetClipRect(drcRenderer, &clipRect);
+
+                    int y = viewTop + rulesScrollY;
+                    for (auto& line : lines) {
+                        if (y + lineHeight >= viewTop && y <= viewBottom) {
+                            DrawText(drcRenderer, line.c_str(), 10, y, lineFontSize, drcTextColor);
+                        }
+                        y += lineHeight;
+                    }
+
+                    SDL_RenderSetClipRect(drcRenderer, nullptr);
+                }
+
                 DrawText(drcRenderer, "Press Ⓐ to continue", 10, 440, 32, drcTextColor);
             }
             else if (scene == CHAT) {
-                DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 48, drcTextColor);
-                DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 60, 48, drcTextColor);
+                DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 32, drcTextColor);
+                DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 45, 32, drcTextColor);
+
+                int lineFontSize = 16;
+                int lineHeight = lineFontSize + 4;
+                int wrapWidth = 854 - 40;
+                int viewTop = 90;
+                int viewBottom = 300;
+
+                SDL_Rect clipRect = { 0, viewTop, 854, viewBottom - viewTop };
+                SDL_RenderSetClipRect(drcRenderer, &clipRect);
+
+                std::vector<std::string> allLines;
+                for (auto& line : chatLines) {
+                    std::vector<std::string> nameLines = WrapRulesText(line.username + ":", lineFontSize, wrapWidth);
+                    std::vector<std::string> msgLines = WrapRulesText(line.message, lineFontSize, wrapWidth);
+                    for (auto& l : nameLines) allLines.push_back(l);
+                    for (auto& l : msgLines) allLines.push_back(l);
+                }
+
+                int maxVisibleLines = (viewBottom - viewTop) / lineHeight;
+                int startIdx = std::max(0, (int)allLines.size() - maxVisibleLines);
+
+                int y = viewTop;
+                for (int i = startIdx; i < (int)allLines.size(); i++) {
+                    DrawText(drcRenderer, allLines[i].c_str(), 10, y, lineFontSize, drcTextColor);
+                    y += lineHeight;
+                }
+
+                SDL_RenderSetClipRect(drcRenderer, nullptr);
 
                 DrawText(drcRenderer, "Move: ↑/↓", 10, 320, 32, drcTextColor);
                 DrawText(drcRenderer, "Leave: Ⓑ", 10, 360, 32, drcTextColor);
