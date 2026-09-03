@@ -29,6 +29,8 @@ int maxWidth = 0;
 
 int sock = ConnectToTCPServer();
 
+int motdTop = SY(460);
+
 bool connectionLost = false;
 
 SDL_Window *tvWindow = NULL;
@@ -164,6 +166,7 @@ int main(int argc, char **argv)
         if (login_account(username.c_str(), password.c_str())) {
             join_room("general");
             request_history("1024");
+            request_motd();
             scene = MAIN_MENU;
         } else {
             scene = SELECTION_MENU;
@@ -231,16 +234,16 @@ int main(int argc, char **argv)
 
     lastTicks = SDL_GetTicks();
     while (WHBProcIsRunning()) {
-        if (scene == CHAT || scene == RULES) {
+        if (scene == CHAT || scene == RULES || scene == MAIN_MENU) {
             Uint32 now = SDL_GetTicks();
             float deltaSec = (now - lastTicks) / 1000.0f;
             lastTicks = now;
 
             if (gController) {
-                // ANALOG STICK
                 Sint16 axisLeftY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_LEFTY);
                 Sint16 axisRightY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_RIGHTY);
-                int* targetPosY = (scene == CHAT) ? &chatPosY : &rulesScrollY;
+            
+                int* targetPosY = (scene == CHAT) ? &chatPosY : (scene == RULES) ? &rulesScrollY : &motdScrollY;
 
                 if (axisLeftY > AXIS_DEADZONE || axisLeftY < -AXIS_DEADZONE ||
                     axisRightY > AXIS_DEADZONE || axisRightY < -AXIS_DEADZONE) {
@@ -250,12 +253,14 @@ int main(int argc, char **argv)
                 }
 
                 // D-PAD
-                if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-                    *targetPosY += (int)(MAX_SPEED * deltaSec);
-                }
+                if (scene != MAIN_MENU) {
+                    if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+                        *targetPosY += (int)(MAX_SPEED * deltaSec);
+                    }
 
-                if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-                    *targetPosY -= (int)(MAX_SPEED * deltaSec);
+                    if (SDL_GameControllerGetButton(gController, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+                        *targetPosY -= (int)(MAX_SPEED * deltaSec);
+                    }
                 }
             }
         }
@@ -388,6 +393,45 @@ int main(int argc, char **argv)
                     }
 
                     DrawText(tvRenderer, mainMenu[i], SX(40), SY(180 + (60 * i)), SF(48), tvTextColor);
+                }
+
+                DrawText(tvRenderer, "Message of the Day:", SX(40), motdTop, SF(36), tvTextColor);
+            
+                if (!motdLoaded) {
+                    DrawText(tvRenderer, "Loading MOTD...", SX(40), motdTop + SY(50), SF(36), tvTextColor);
+                } else {
+                    int lineFontSize = SF(32);
+                    int lineHeight = lineFontSize + SY(8);
+                    int wrapWidth = tvWidth - SX(80);
+                
+                    std::vector<std::string> lines = WrapRulesText(
+                        serverMOTD.empty() ? "No MOTD provided." : serverMOTD,
+                        lineFontSize,
+                        wrapWidth
+                    );
+                
+                    int viewTop = motdTop + SY(50);
+                    int viewBottom = tvHeight - SY(40);
+                    int viewHeight = viewBottom - viewTop;
+                
+                    int contentHeight = (int)lines.size() * lineHeight;
+                    int maxScroll = std::max(0, contentHeight - viewHeight);
+                
+                    if (motdScrollY > 0) motdScrollY = 0;
+                    if (motdScrollY < -maxScroll) motdScrollY = -maxScroll;
+                
+                    SDL_Rect clipRect = { 0, viewTop, tvWidth, viewHeight };
+                    SDL_RenderSetClipRect(tvRenderer, &clipRect);
+                
+                    int y = viewTop + motdScrollY;
+                    for (auto& line : lines) {
+                        if (y + lineHeight >= viewTop && y <= viewBottom) {
+                            DrawText(tvRenderer, line.c_str(), SX(40), y, lineFontSize, tvTextColor);
+                        }
+                        y += lineHeight;
+                    }
+                
+                    SDL_RenderSetClipRect(tvRenderer, nullptr);
                 }
             }
             else if (scene == SETTINGS) {

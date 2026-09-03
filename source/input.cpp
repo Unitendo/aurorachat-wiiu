@@ -25,6 +25,7 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                 }
             }
             if (e.button == SDL_CONTROLLER_BUTTON_B) {
+                request_motd();
                 scene = MAIN_MENU;
             }
             if (e.button == SDL_CONTROLLER_BUTTON_Y) {
@@ -76,14 +77,17 @@ void handle_button_down(const SDL_ControllerButtonEvent& e)
                         break;
 
                     case 3:
+                        request_motd();
                         scene = MAIN_MENU;
                         break;
                 }
             }
         }
         else if (scene == CREDITS) {
-            if (e.button == SDL_CONTROLLER_BUTTON_B)
+            if (e.button == SDL_CONTROLLER_BUTTON_B) {
+                request_motd();
                 scene = MAIN_MENU;
+            }
         }
         else if (scene == MAIN_MENU) {
             if (e.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {

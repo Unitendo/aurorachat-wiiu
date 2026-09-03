@@ -10,9 +10,12 @@ SDL_Texture* discordAvatar = nullptr;
 SDL_Texture* defaultAvatar = nullptr;
 
 std::string serverRules = "";
+std::string serverMOTD = "";
 bool rulesLoaded = false;
+bool motdLoaded = false;
 
 int rulesScrollY = 0;
+int motdScrollY = 0;
 
 static std::string g_pending;
 
@@ -408,6 +411,15 @@ void request_rules()
 }
 
 
+void request_motd()
+{
+    if (sock < 0) return;
+    motdLoaded = false;
+    motdScrollY = 0;
+    SendCommand(sock, "motd", {});
+}
+
+
 void request_history(const std::string& size)
 {
     if (sock < 0) return;
@@ -475,7 +487,8 @@ void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
                 else if (cmd == "motd")
                 {
                     if (parts.size() > 1)
-                        OSReport("motd: %s", UrlDecode(parts[1]).c_str());
+                        serverMOTD = UrlDecode(parts[1]);
+                    motdLoaded = true;
                 }
                 else
                 {

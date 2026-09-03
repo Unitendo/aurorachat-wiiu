@@ -42,9 +42,12 @@ extern SDL_Texture* discordAvatar;
 extern SDL_Texture* defaultAvatar;
 
 extern std::string serverRules;
+extern std::string serverMOTD;
 extern bool rulesLoaded;
+extern bool motdLoaded;
 
 extern int rulesScrollY;
+extern int motdScrollY;
 
 void LoadAvatars();
 void DestroyAvatars();
@@ -63,5 +66,6 @@ void fetch_rooms();
 void join_room(const std::string& room);
 void part_room();
 void request_rules();
+void request_motd();
 void request_history(const std::string& size);
 void send_chat(const std::string& message);
