@@ -240,6 +240,7 @@ int main(int argc, char **argv)
             lastTicks = now;
 
             if (gController) {
+                // ANALOG STICK
                 Sint16 axisLeftY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_LEFTY);
                 Sint16 axisRightY = SDL_GameControllerGetAxis(gController, SDL_CONTROLLER_AXIS_RIGHTY);
             
