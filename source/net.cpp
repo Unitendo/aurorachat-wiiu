@@ -8,6 +8,8 @@ bool showResponse = false;
 
 SDL_Texture* discordAvatar = nullptr;
 SDL_Texture* defaultAvatar = nullptr;
+SDL_Texture* drcDiscordAvatar = nullptr;
+SDL_Texture* drcDefaultAvatar = nullptr;
 
 std::string serverRules = "";
 std::string serverMOTD = "";
@@ -23,15 +25,16 @@ void LoadAvatars()
 {
     discordAvatar = LoadImage(tvRenderer, "romfs:/res/discord.png");
     defaultAvatar = LoadImage(tvRenderer, "romfs:/res/default.png");
+    drcDiscordAvatar = LoadImage(drcRenderer, "romfs:/res/discord.png");
+    drcDefaultAvatar = LoadImage(drcRenderer, "romfs:/res/default.png");
 }
 
 void DestroyAvatars()
 {
-    if (discordAvatar)
-        SDL_DestroyTexture(discordAvatar);
-
-    if (defaultAvatar)
-        SDL_DestroyTexture(defaultAvatar);
+    if (discordAvatar) SDL_DestroyTexture(discordAvatar);
+    if (defaultAvatar) SDL_DestroyTexture(defaultAvatar);
+    if (drcDiscordAvatar) SDL_DestroyTexture(drcDiscordAvatar);
+    if (drcDefaultAvatar) SDL_DestroyTexture(drcDefaultAvatar);
 }
 
 static bool SetNonBlocking(int sock)
@@ -438,7 +441,7 @@ void send_chat(const std::string& message)
     SendCommand(sock, "msg", { message });
 }
 
-void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth, int chatViewHeight)
+void TryReceive(int* sock, SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, int fontSize, SDL_Color textColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight)
 {
     if (*sock < 0) return;
 
@@ -465,9 +468,13 @@ void TryReceive(int* sock, SDL_Renderer* renderer, int fontSize, SDL_Color textC
                     std::string user = UrlDecode(parts[1]);
                     std::string message = UrlDecode(parts[2]);
 
-                    SDL_Texture* avatar = (user.find("[DISCORD]") != std::string::npos) ? discordAvatar : defaultAvatar;
+                    bool isDiscord = user.find("[DISCORD]") != std::string::npos;
+                    SDL_Texture* avatar = isDiscord ? discordAvatar : defaultAvatar;
+                    SDL_Texture* drcAvatar = isDiscord ? drcDiscordAvatar : drcDefaultAvatar;
 
-                    AddChatLine(renderer, user, message, avatar, fontSize, fontSize, textColor, textColor, maxWidth, chatViewHeight);
+                    AddChatLine(tvRenderer, drcRenderer, user, message, avatar, drcAvatar,
+                                fontSize, fontSize, textColor, textColor,
+                                tvMaxWidth, tvChatViewHeight, drcMaxWidth, drcChatViewHeight);
                 }
                 else if (cmd == "err")
                 {

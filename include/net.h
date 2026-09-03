@@ -26,6 +26,7 @@
 // These are defined in main.cpp
 extern int sock;
 extern SDL_Renderer* tvRenderer;
+extern SDL_Renderer* drcRenderer;
 extern int fontSize;
 extern int maxWidth;
 extern SDL_Color tvTextColor;
@@ -37,9 +38,6 @@ extern std::string authError;
 extern bool showResponse;
 
 extern std::string currentRoom;
-
-extern SDL_Texture* discordAvatar;
-extern SDL_Texture* defaultAvatar;
 
 extern std::string serverRules;
 extern std::string serverMOTD;
@@ -56,7 +54,7 @@ int ConnectToTCPServer();
 void ReconnectToTCPServer();
 int ConnectToHTTPServer();
 
-void TryReceive(int *sock, SDL_Renderer* renderer, int fontSize, SDL_Color textColor, int maxWidth, int chatViewHeight);
+void TryReceive(int* sock, SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, int fontSize, SDL_Color textColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight);
 std::string send_post_request(const std::string& endpoint, const std::string& body);
 
 bool create_account(const std::string& username, const std::string& password);

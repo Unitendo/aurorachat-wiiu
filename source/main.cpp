@@ -27,6 +27,9 @@ Scene scene = SELECTION_MENU;
 int fontSize = 48;
 int maxWidth = 0;
 
+int drcMaxWidth = 854 - 20;
+int drcChatViewHeight = 480 - 40;
+
 int sock = ConnectToTCPServer();
 
 int motdTop = SY(460);
@@ -182,7 +185,8 @@ int main(int argc, char **argv)
     LoadAvatars();
 
     SDL_Texture* systemAvatar = LoadImage(tvRenderer, "romfs:/res/system.png");
-    AddChatLine(tvRenderer, "System", "Welcome!", systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight);
+    SDL_Texture* drcSystemAvatar = LoadImage(drcRenderer, "romfs:/res/system.png");
+    AddChatLine(tvRenderer, drcRenderer, "System", "Welcome!", systemAvatar, drcSystemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight, drcMaxWidth, drcChatViewHeight);
 
     Uint32 lastTicks = 0;
     const int AXIS_DEADZONE = 8000;  // deadzone for joystick
@@ -292,7 +296,7 @@ int main(int argc, char **argv)
                             currentRoom = textBuffer;
                             chatLines.clear();
                             chatPosY = 0;
-                            AddChatLine(tvRenderer, "System", ("Room changed to " + textBuffer).c_str(), systemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight);
+                            AddChatLine(tvRenderer, drcRenderer, "System", ("Room changed to " + textBuffer).c_str(), systemAvatar, drcSystemAvatar, SF(fontSize), SF(fontSize), tvTextColor, tvTextColor, maxWidth, chatViewHeight, drcMaxWidth, drcChatViewHeight);
                             request_history("1024");
                         }
                     }
@@ -304,7 +308,7 @@ int main(int argc, char **argv)
         }
 
         // Handle incoming messages
-        TryReceive(&sock, tvRenderer, SF(fontSize), tvTextColor, maxWidth, chatViewHeight);
+        TryReceive(&sock, tvRenderer, drcRenderer, SF(fontSize), tvTextColor, maxWidth, chatViewHeight, drcMaxWidth, drcChatViewHeight);
 
         // Render TV Screen
         if (tvRenderer) {
@@ -830,39 +834,14 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 32, drcTextColor);
                 DrawText(drcRenderer, ("Room: " + currentRoom).c_str(), 10, 45, 32, drcTextColor);
 
-                int lineFontSize = 16;
-                int lineHeight = lineFontSize + 4;
-                int wrapWidth = 854 - 40;
-                int viewTop = 90;
-                int viewBottom = 300;
-
-                SDL_Rect clipRect = { 0, viewTop, 854, viewBottom - viewTop };
-                SDL_RenderSetClipRect(drcRenderer, &clipRect);
-
-                std::vector<std::string> allLines;
-                for (auto& line : chatLines) {
-                    std::vector<std::string> nameLines = WrapRulesText(line.username + ":", lineFontSize, wrapWidth);
-                    std::vector<std::string> msgLines = WrapRulesText(line.message, lineFontSize, wrapWidth);
-                    for (auto& l : nameLines) allLines.push_back(l);
-                    for (auto& l : msgLines) allLines.push_back(l);
-                }
-
-                int maxVisibleLines = (viewBottom - viewTop) / lineHeight;
-                int startIdx = std::max(0, (int)allLines.size() - maxVisibleLines);
-
-                int y = viewTop;
-                for (int i = startIdx; i < (int)allLines.size(); i++) {
-                    DrawText(drcRenderer, allLines[i].c_str(), 10, y, lineFontSize, drcTextColor);
-                    y += lineHeight;
-                }
-
-                SDL_RenderSetClipRect(drcRenderer, nullptr);
+                DrawLatestMessagesDRC(drcRenderer, 10, 90, 300);
 
                 DrawText(drcRenderer, "Move: ↑/↓", 10, 320, 32, drcTextColor);
                 DrawText(drcRenderer, "Leave: Ⓑ", 10, 360, 32, drcTextColor);
                 DrawText(drcRenderer, "Change room: Ⓨ", 10, 400, 32, drcTextColor);
                 DrawText(drcRenderer, "Send a message: Ⓐ", 10, 440, 32, drcTextColor);
             }
+
             SDL_RenderPresent(drcRenderer);
         }
     }
@@ -886,6 +865,8 @@ int main(int argc, char **argv)
 
     if (systemAvatar)
         SDL_DestroyTexture(systemAvatar);
+    if (drcSystemAvatar)
+        SDL_DestroyTexture(drcSystemAvatar);
 
     if (drcRenderer)
         SDL_DestroyRenderer(drcRenderer);

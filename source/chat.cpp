@@ -9,24 +9,36 @@ std::string currentRoom = "general";
 
 bool AutoScrollEnabled = true;
 
-void AddChatLine(SDL_Renderer* renderer, const std::string& username, const std::string& message, SDL_Texture* avatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int maxWidth, int chatViewHeight)
+void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight)
 {
     const int avatarSize = SF(128);
     const int avatarPadding = SF(8);
 
+    const int drcAvatarSize = 64;
+    const int drcAvatarPadding = 6;
+    const int drcFontSize = 20;
+
     ChatLine line;
     line.username = username;
     line.message = message;
-    line.avatarTexture = avatar;
+    line.avatarTexture = tvAvatar;
+    line.drcAvatarTexture = drcAvatar;
 
-    // Username texture
-    int textStartX = avatarSize + avatarPadding;
-    int wrapWidth = maxWidth - textStartX;
+    // TV textures
+    int tvTextStartX = avatarSize + avatarPadding;
+    int tvWrapWidth = tvMaxWidth - tvTextStartX;
 
-    line.nameTexture = DrawTextToTexture(renderer, username.c_str(), nameFontSize, nameColor, wrapWidth, true);
-    line.messageTexture = DrawTextToTexture(renderer, message.c_str(), messageFontSize, messageColor, wrapWidth, false);
+    line.nameTexture = DrawTextToTexture(tvRenderer, username.c_str(), nameFontSize, nameColor, tvWrapWidth, true);
+    line.messageTexture = DrawTextToTexture(tvRenderer, message.c_str(), messageFontSize, messageColor, tvWrapWidth, false);
 
-    if (!line.nameTexture || !line.messageTexture)
+    // DRC textures
+    int drcTextStartX = drcAvatarSize + drcAvatarPadding;
+    int drcWrapWidth = drcMaxWidth - drcTextStartX;
+
+    line.drcNameTexture = DrawTextToTexture(drcRenderer, username.c_str(), drcFontSize, nameColor, drcWrapWidth, true);
+    line.drcMessageTexture = DrawTextToTexture(drcRenderer, message.c_str(), drcFontSize, messageColor, drcWrapWidth, false);
+
+    if (!line.nameTexture || !line.messageTexture || !line.drcNameTexture || !line.drcMessageTexture)
         return;
 
     int w, h;
@@ -35,6 +47,12 @@ void AddChatLine(SDL_Renderer* renderer, const std::string& username, const std:
 
     SDL_QueryTexture(line.messageTexture, nullptr, nullptr, &w, &h);
     line.messageHeight = h;
+
+    SDL_QueryTexture(line.drcNameTexture, nullptr, nullptr, &w, &h);
+    line.drcNameHeight = h;
+
+    SDL_QueryTexture(line.drcMessageTexture, nullptr, nullptr, &w, &h);
+    line.drcMessageHeight = h;
 
     chatLines.push_back(line);
 
@@ -48,8 +66,7 @@ void AddChatLine(SDL_Renderer* renderer, const std::string& username, const std:
             totalHeight += l.messageHeight;
         }
 
-        chatPosY = chatViewHeight - totalHeight;
-
+        chatPosY = tvChatViewHeight - totalHeight;
         if (chatPosY > 0)
             chatPosY = 0;
     }
@@ -86,7 +103,70 @@ void DrawChatBuffer(SDL_Renderer* renderer, int x, int y)
         SDL_QueryTexture(line.messageTexture, nullptr, nullptr, &w, &h);
         SDL_Rect msgRect = { textStartX, drawY, w, h };
         SDL_RenderCopy(renderer, line.messageTexture, nullptr, &msgRect);
-        
+
         drawY += h; // spacing between new messages
     }
+}
+
+void DrawLatestMessagesDRC(SDL_Renderer* renderer, int x, int topY, int bottomY)
+{
+    if (chatLines.empty())
+        return;
+
+    const int avatarSize = 48;
+    const int avatarPadding = 8;
+    const int messageSpacing = 12;
+
+    int textStartX = x + avatarSize + avatarPadding;
+
+    SDL_Rect clipRect = { 0, topY, 854, bottomY - topY };
+    SDL_RenderSetClipRect(renderer, &clipRect);
+
+    int drawBottom = bottomY;
+    std::vector<ChatLine*> toDraw;
+
+    for (auto it = chatLines.rbegin(); it != chatLines.rend(); ++it)
+    {
+        ChatLine& line = *it;
+
+        int nameH, msgH;
+        SDL_QueryTexture(line.drcNameTexture, nullptr, nullptr, nullptr, &nameH);
+        SDL_QueryTexture(line.drcMessageTexture, nullptr, nullptr, nullptr, &msgH);
+
+        int blockHeight = std::max(avatarSize, (nameH - messageSpacing) + msgH);
+
+        if (drawBottom - blockHeight < topY)
+            break; // no more room
+
+        toDraw.push_back(&line);
+        drawBottom -= (blockHeight);
+    }
+
+    int drawY = drawBottom;
+
+    for (auto it = toDraw.rbegin(); it != toDraw.rend(); ++it)
+    {
+        ChatLine& line = **it;
+        int w, h;
+
+        if (line.drcAvatarTexture) {
+            SDL_Rect avatarRect = { x, drawY, avatarSize, avatarSize };
+            SDL_RenderCopy(renderer, line.drcAvatarTexture, nullptr, &avatarRect);
+        }
+
+        SDL_QueryTexture(line.drcNameTexture, nullptr, nullptr, &w, &h);
+        SDL_Rect nameRect = { textStartX, drawY, w, h };
+        SDL_RenderCopy(renderer, line.drcNameTexture, nullptr, &nameRect);
+
+        int msgY = drawY + h - messageSpacing;
+
+        SDL_QueryTexture(line.drcMessageTexture, nullptr, nullptr, &w, &h);
+        SDL_Rect msgRect = { textStartX, msgY, w, h };
+        SDL_RenderCopy(renderer, line.drcMessageTexture, nullptr, &msgRect);
+
+        int blockHeight = std::max(avatarSize, (nameRect.h - messageSpacing) + h);
+        drawY += blockHeight;
+    }
+
+    SDL_RenderSetClipRect(renderer, nullptr);
 }
