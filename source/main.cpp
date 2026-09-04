@@ -50,6 +50,14 @@ SDL_Color tvTextColor = {255, 255, 255, 255};
 SDL_Color drcBackgroundColor = {0, 0, 0, 255};
 SDL_Color drcTextColor = {255, 255, 255, 255};
 
+static std::vector<std::string> cachedRulesLinesTV;
+static std::vector<std::string> cachedMotdLinesTV;
+static std::vector<std::string> cachedRulesLinesDRC;
+static std::vector<std::string> cachedMotdLinesDRC;
+
+static std::string lastWrappedRules = "";
+static std::string lastWrappedMotd = "";
+
 static std::vector<std::string> WrapRulesText(const std::string& text, int fontSizePx, int wrapWidthPx)
 {
     std::vector<std::string> outLines;
@@ -315,6 +323,30 @@ int main(int argc, char **argv)
             expectingHistory = false;
         }
 
+        if (lastWrappedRules != serverRules) {
+            int tvLineFontSize = SF(36);
+            int tvWrapWidth = tvWidth - SX(80);
+            cachedRulesLinesTV = WrapRulesText(serverRules.empty() ? "No rules provided." : serverRules, tvLineFontSize, tvWrapWidth);
+
+            int drcLineFontSize = 18;
+            int drcWrapWidth = 854 - 20;
+            cachedRulesLinesDRC = WrapRulesText(serverRules.empty() ? "No rules provided." : serverRules, drcLineFontSize, drcWrapWidth);
+
+            lastWrappedRules = serverRules;
+        }
+
+        if (lastWrappedMotd != serverMOTD) {
+            int tvLineFontSize = SF(32);
+            int tvWrapWidth = tvWidth - SX(80);
+            cachedMotdLinesTV = WrapRulesText(serverMOTD.empty() ? "No MOTD provided." : serverMOTD, tvLineFontSize, tvWrapWidth);
+
+            int drcLineFontSize = 18;
+            int drcWrapWidth = 854 - 20;
+            cachedMotdLinesDRC = WrapRulesText(serverMOTD.empty() ? "No MOTD provided." : serverMOTD, drcLineFontSize, drcWrapWidth);
+
+            lastWrappedMotd = serverMOTD;
+        }
+
         // Render TV Screen
         if (tvRenderer) {
             SDL_RenderClear(tvRenderer);
@@ -406,33 +438,28 @@ int main(int argc, char **argv)
                 }
 
                 DrawText(tvRenderer, "Message of the Day:", SX(40), motdTop, SF(36), tvTextColor);
-            
+
                 if (!motdLoaded) {
                     DrawText(tvRenderer, "Loading MOTD...", SX(40), motdTop + SY(50), SF(36), tvTextColor);
                 } else {
                     int lineFontSize = SF(32);
                     int lineHeight = lineFontSize + SY(8);
-                    int wrapWidth = tvWidth - SX(80);
-                
-                    std::vector<std::string> lines = WrapRulesText(
-                        serverMOTD.empty() ? "No MOTD provided." : serverMOTD,
-                        lineFontSize,
-                        wrapWidth
-                    );
-                
+
+                    auto& lines = cachedMotdLinesTV;
+
                     int viewTop = motdTop + SY(50);
                     int viewBottom = tvHeight - SY(40);
                     int viewHeight = viewBottom - viewTop;
-                
+
                     int contentHeight = (int)lines.size() * lineHeight;
                     int maxScroll = std::max(0, contentHeight - viewHeight);
-                
+
                     if (motdScrollY > 0) motdScrollY = 0;
                     if (motdScrollY < -maxScroll) motdScrollY = -maxScroll;
-                
+
                     SDL_Rect clipRect = { 0, viewTop, tvWidth, viewHeight };
                     SDL_RenderSetClipRect(tvRenderer, &clipRect);
-                
+
                     int y = viewTop + motdScrollY;
                     for (auto& line : lines) {
                         if (y + lineHeight >= viewTop && y <= viewBottom) {
@@ -440,7 +467,7 @@ int main(int argc, char **argv)
                         }
                         y += lineHeight;
                     }
-                
+
                     SDL_RenderSetClipRect(tvRenderer, nullptr);
                 }
             }
@@ -557,13 +584,8 @@ int main(int argc, char **argv)
                 } else {
                     int lineFontSize = SF(36);
                     int lineHeight = lineFontSize + SY(8);
-                    int wrapWidth = tvWidth - SX(80);
                 
-                    std::vector<std::string> lines = WrapRulesText(
-                        serverRules.empty() ? "No rules provided." : serverRules,
-                        lineFontSize,
-                        wrapWidth
-                    );
+                    auto& lines = cachedRulesLinesTV;
 
                     int viewTop = SY(180);
                     int viewBottom = tvHeight - SY(160);
@@ -732,13 +754,8 @@ int main(int argc, char **argv)
                 } else {
                     int lineFontSize = 18;
                     int lineHeight = lineFontSize + 4;
-                    int wrapWidth = 854 - 20;
 
-                    std::vector<std::string> lines = WrapRulesText(
-                        serverMOTD.empty() ? "No MOTD provided." : serverMOTD,
-                        lineFontSize,
-                        wrapWidth
-                    );
+                    auto& lines = cachedMotdLinesDRC;
 
                     int viewTop = 220;
                     int viewBottom = 470;
@@ -808,13 +825,8 @@ int main(int argc, char **argv)
                 } else {
                     int lineFontSize = 18;
                     int lineHeight = lineFontSize + 4;
-                    int wrapWidth = 854 - 20;
 
-                    std::vector<std::string> lines = WrapRulesText(
-                        serverRules.empty() ? "No rules provided." : serverRules,
-                        lineFontSize,
-                        wrapWidth
-                    );
+                    auto& lines = cachedRulesLinesDRC;
 
                     int viewTop = 60;
                     int viewBottom = 400;
