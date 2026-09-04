@@ -47,6 +47,9 @@ extern bool motdLoaded;
 extern int rulesScrollY;
 extern int motdScrollY;
 
+extern bool expectingHistory;
+extern Uint32 lastHistoryMsgTicks;
+
 void LoadAvatars();
 void DestroyAvatars();
 

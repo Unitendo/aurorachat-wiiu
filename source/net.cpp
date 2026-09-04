@@ -19,6 +19,9 @@ bool motdLoaded = false;
 int rulesScrollY = 0;
 int motdScrollY = 0;
 
+bool expectingHistory = false;
+Uint32 lastHistoryMsgTicks = 0;
+
 static std::string g_pending;
 
 void LoadAvatars()
@@ -427,6 +430,9 @@ void request_history(const std::string& size)
 {
     if (sock < 0) return;
 
+    expectingHistory = true;
+    lastHistoryMsgTicks = SDL_GetTicks();
+
     if (size.empty())
         SendCommand(sock, "history", {});
     else
@@ -467,14 +473,17 @@ void TryReceive(int* sock, SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, 
                 {
                     std::string user = UrlDecode(parts[1]);
                     std::string message = UrlDecode(parts[2]);
-
+                
                     bool isDiscord = user.find("[DISCORD]") != std::string::npos;
                     SDL_Texture* avatar = isDiscord ? discordAvatar : defaultAvatar;
                     SDL_Texture* drcAvatar = isDiscord ? drcDiscordAvatar : drcDefaultAvatar;
 
-                    AddChatLine(tvRenderer, drcRenderer, user, message, avatar, drcAvatar,
-                                fontSize, fontSize, textColor, textColor,
-                                tvMaxWidth, tvChatViewHeight, drcMaxWidth, drcChatViewHeight);
+                    AddChatLine(tvRenderer, drcRenderer, user, message, avatar, drcAvatar, fontSize, fontSize, textColor, textColor, tvMaxWidth, tvChatViewHeight, drcMaxWidth, drcChatViewHeight);
+
+                    if (expectingHistory) {
+                        ScrollChatToBottom(tvChatViewHeight);
+                        lastHistoryMsgTicks = SDL_GetTicks();
+                    }
                 }
                 else if (cmd == "err")
                 {

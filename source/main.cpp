@@ -311,6 +311,10 @@ int main(int argc, char **argv)
         // Handle incoming messages
         TryReceive(&sock, tvRenderer, drcRenderer, SF(fontSize), tvTextColor, maxWidth, chatViewHeight, drcMaxWidth, drcChatViewHeight);
 
+        if (expectingHistory && (SDL_GetTicks() - lastHistoryMsgTicks > 300)) {
+            expectingHistory = false;
+        }
+
         // Render TV Screen
         if (tvRenderer) {
             SDL_RenderClear(tvRenderer);
