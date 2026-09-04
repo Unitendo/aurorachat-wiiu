@@ -33,8 +33,6 @@ int drcChatViewHeight = 480 - 40;
 
 int sock = ConnectToTCPServer();
 
-int motdTop = SY(460);
-
 bool connectionLost = false;
 
 SDL_Window *tvWindow = NULL;
@@ -154,6 +152,8 @@ int main(int argc, char **argv)
 
     maxWidth = tvWidth - SX(40);
     chatViewHeight = tvHeight - SY(80);
+
+    int motdTop = SY(460);
 
     // GamePad Window
     drcWindow = SDL_CreateWindow("DRC",
