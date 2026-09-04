@@ -7,9 +7,9 @@ int chatPosY = 0;
 
 std::string currentRoom = "general";
 
-bool AutoScrollEnabled = false;
+bool AutoScrollEnabled = true;
 
-void ScrollChatToBottom(int tvChatViewHeight)
+static int ComputeBottomChatPosY(int tvChatViewHeight)
 {
     int totalHeight = 0;
     for (auto& l : chatLines)
@@ -18,9 +18,23 @@ void ScrollChatToBottom(int tvChatViewHeight)
         totalHeight += l.messageHeight;
     }
 
-    chatPosY = tvChatViewHeight - totalHeight;
-    if (chatPosY > 0)
-        chatPosY = 0;
+    int bottomPosY = tvChatViewHeight - totalHeight;
+    if (bottomPosY > 0)
+        bottomPosY = 0;
+
+    return bottomPosY;
+}
+
+static bool IsAtBottom(int tvChatViewHeight)
+{
+    int bottomPosY = ComputeBottomChatPosY(tvChatViewHeight);
+
+    return chatPosY <= bottomPosY + SY(250); // Allow a small margin of error
+}
+
+void ScrollChatToBottom(int tvChatViewHeight)
+{
+    chatPosY = ComputeBottomChatPosY(tvChatViewHeight);
 }
 
 void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight)
@@ -31,6 +45,8 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
     const int drcAvatarSize = 64;
     const int drcAvatarPadding = 6;
     const int drcFontSize = 20;
+
+    bool wasAtBottom = IsAtBottom(tvChatViewHeight);
 
     ChatLine line;
     line.username = username;
@@ -70,8 +86,8 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
 
     chatLines.push_back(line);
 
-    // Auto-scroll to bottom
-    if (AutoScrollEnabled)
+    // Only auto-scroll if the user was at the bottom
+    if (AutoScrollEnabled && wasAtBottom)
     {
         ScrollChatToBottom(tvChatViewHeight);
     }
