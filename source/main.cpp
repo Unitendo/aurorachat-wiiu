@@ -329,7 +329,7 @@ int main(int argc, char **argv)
             cachedRulesLinesTV = WrapRulesText(serverRules.empty() ? "No rules provided." : serverRules, tvLineFontSize, tvWrapWidth);
 
             int drcLineFontSize = 18;
-            int drcWrapWidth = 854 - 20;
+            int drcWrapWidth = 854 - 60;
             cachedRulesLinesDRC = WrapRulesText(serverRules.empty() ? "No rules provided." : serverRules, drcLineFontSize, drcWrapWidth);
 
             lastWrappedRules = serverRules;
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
             cachedMotdLinesTV = WrapRulesText(serverMOTD.empty() ? "No MOTD provided." : serverMOTD, tvLineFontSize, tvWrapWidth);
 
             int drcLineFontSize = 18;
-            int drcWrapWidth = 854 - 20;
+            int drcWrapWidth = 854 - 60;
             cachedMotdLinesDRC = WrapRulesText(serverMOTD.empty() ? "No MOTD provided." : serverMOTD, drcLineFontSize, drcWrapWidth);
 
             lastWrappedMotd = serverMOTD;
@@ -570,7 +570,7 @@ int main(int argc, char **argv)
                 DrawText(tvRenderer, "Press Ⓑ to go back", SX(20), SY(1000), SF(64), tvTextColor);
             }
             else if (scene == SIGN_IN) {
-                DrawText(tvRenderer, "Logging In", SX(550), SY(30), SF(128), tvTextColor);
+                DrawText(tvRenderer, "Logging In", SX(600), SY(30), SF(128), tvTextColor);
 
                 DrawText(tvRenderer, "Move: ↑/↓", SX(20), SY(860), SF(64), tvTextColor);
                 DrawText(tvRenderer, "Select: Ⓐ", SX(20), SY(930), SF(64), tvTextColor);
@@ -747,10 +747,10 @@ int main(int argc, char **argv)
                     DrawText(drcRenderer, mainMenu[i], 20, 40 * i + 4, 32, drcTextColor);
                 }
 
-                DrawText(drcRenderer, "MOTD:", 10, 190, 24, drcTextColor);
+                DrawText(drcRenderer, "Message of the Day:", 20, 190, 24, drcTextColor);
 
                 if (!motdLoaded) {
-                    DrawText(drcRenderer, "Loading MOTD...", 10, 220, 20, drcTextColor);
+                    DrawText(drcRenderer, "Loading MOTD...", 20, 220, 20, drcTextColor);
                 } else {
                     int lineFontSize = 18;
                     int lineHeight = lineFontSize + 4;
@@ -766,7 +766,7 @@ int main(int argc, char **argv)
                     int y = viewTop + motdScrollY;
                     for (auto& line : lines) {
                         if (y + lineHeight >= viewTop && y <= viewBottom) {
-                            DrawText(drcRenderer, line.c_str(), 10, y, lineFontSize, drcTextColor);
+                            DrawText(drcRenderer, line.c_str(), 20, y, lineFontSize, drcTextColor);
                         }
                         y += lineHeight;
                     }
@@ -818,7 +818,7 @@ int main(int argc, char **argv)
                 DrawText(drcRenderer, "Enter text using the on-screen keyboard.", 20, 20, 32, drcTextColor);
             }
             else if (scene == RULES) {
-                DrawText(drcRenderer, "Server Rules", 10, 10, 32, drcTextColor);
+                DrawText(drcRenderer, "Server Rules", 250, 10, 48, drcTextColor);
 
                 if (!rulesLoaded) {
                     DrawText(drcRenderer, "Loading rules...", 10, 60, 24, drcTextColor);
@@ -845,7 +845,8 @@ int main(int argc, char **argv)
                     SDL_RenderSetClipRect(drcRenderer, nullptr);
                 }
 
-                DrawText(drcRenderer, "Press Ⓐ to continue", 10, 440, 32, drcTextColor);
+                DrawText(drcRenderer, "Move: ↑/↓", 10, 400, 32, drcTextColor);
+                DrawText(drcRenderer, "Accept & Continue: Ⓐ", 10, 440, 32, drcTextColor);
             }
             else if (scene == CHAT) {
                 DrawText(drcRenderer, ("Username: " + username).c_str(), 10, 10, 32, drcTextColor);
