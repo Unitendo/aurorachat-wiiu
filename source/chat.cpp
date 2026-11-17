@@ -37,7 +37,7 @@ void ScrollChatToBottom(int tvChatViewHeight)
     chatPosY = ComputeBottomChatPosY(tvChatViewHeight);
 }
 
-void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight)
+void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std::string& username, const std::string& message, SDL_Texture* tvAvatar, SDL_Texture* drcAvatar, int nameFontSize, int messageFontSize, SDL_Color nameColor, SDL_Color messageColor, int tvMaxWidth, int tvChatViewHeight, int drcMaxWidth, int drcChatViewHeight, const std::string& timestamp)
 {
     const int avatarSize = SF(128);
     const int avatarPadding = SF(8);
@@ -51,6 +51,7 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
     ChatLine line;
     line.username = username;
     line.message = message;
+    line.timestamp = timestamp;
     line.avatarTexture = tvAvatar;
     line.drcAvatarTexture = drcAvatar;
 
@@ -59,6 +60,12 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
     int tvWrapWidth = tvMaxWidth - tvTextStartX;
 
     line.nameTexture = DrawTextToTexture(tvRenderer, username.c_str(), nameFontSize, nameColor, tvWrapWidth, true);
+
+    line.timestampTexture = nullptr;
+
+    if (!timestamp.empty())
+        line.timestampTexture = DrawTextToTexture(tvRenderer, timestamp.c_str(), nameFontSize / 2, nameColor, tvWrapWidth, false);
+
     line.messageTexture = DrawTextToTexture(tvRenderer, message.c_str(), messageFontSize, messageColor, tvWrapWidth, false);
 
     // DRC textures
@@ -66,9 +73,15 @@ void AddChatLine(SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, const std:
     int drcWrapWidth = drcMaxWidth - drcTextStartX;
 
     line.drcNameTexture = DrawTextToTexture(drcRenderer, username.c_str(), drcFontSize, nameColor, drcWrapWidth, true);
+
+    line.drcTimestampTexture = nullptr;
+
+    if (!timestamp.empty())
+        line.drcTimestampTexture = DrawTextToTexture(drcRenderer, timestamp.c_str(), drcFontSize / 2, nameColor, drcWrapWidth, false);
+
     line.drcMessageTexture = DrawTextToTexture(drcRenderer, message.c_str(), drcFontSize, messageColor, drcWrapWidth, false);
 
-    if (!line.nameTexture || !line.messageTexture || !line.drcNameTexture || !line.drcMessageTexture)
+    if (!line.nameTexture || !line.messageTexture || !line.drcNameTexture || !line.drcMessageTexture || (!timestamp.empty() && (!line.timestampTexture || !line.drcTimestampTexture)))
         return;
 
     int w, h;
@@ -117,6 +130,21 @@ void DrawChatBuffer(SDL_Renderer* renderer, int x, int y)
         SDL_QueryTexture(line.nameTexture, nullptr, nullptr, &w, &h);
         SDL_Rect nameRect = { textStartX, drawY, w, h };
         SDL_RenderCopy(renderer, line.nameTexture, nullptr, &nameRect);
+
+        // Draw timestamp beside username
+        if (line.timestampTexture)
+        {
+            int timestampW, timestampH;
+
+            SDL_QueryTexture(line.timestampTexture, nullptr, nullptr, &timestampW, &timestampH);
+
+            const int timestampPadding = SF(16);
+
+            int timestampY = drawY + (h - timestampH) / 2 - SF(10);
+            SDL_Rect timestampRect = { textStartX + w + timestampPadding, timestampY, timestampW, timestampH };
+
+            SDL_RenderCopy(renderer, line.timestampTexture, nullptr, &timestampRect);
+        }
 
         drawY += h - messageSpacing; // spacing between avatar and message
 
@@ -178,6 +206,21 @@ void DrawLatestMessagesDRC(SDL_Renderer* renderer, int x, int topY, int bottomY)
         SDL_QueryTexture(line.drcNameTexture, nullptr, nullptr, &w, &h);
         SDL_Rect nameRect = { textStartX, drawY, w, h };
         SDL_RenderCopy(renderer, line.drcNameTexture, nullptr, &nameRect);
+
+        // Draw timestamp beside username
+        if (line.drcTimestampTexture)
+        {
+            int timestampW, timestampH;
+
+            SDL_QueryTexture(line.drcTimestampTexture, nullptr, nullptr, &timestampW, &timestampH);
+
+            const int timestampPadding = 8;
+
+            int timestampY = drawY + (h - timestampH) / 2 - 3;
+            SDL_Rect timestampRect = { textStartX + w + timestampPadding, timestampY, timestampW, timestampH };
+
+            SDL_RenderCopy(renderer, line.drcTimestampTexture, nullptr, &timestampRect);
+        }
 
         int msgY = drawY + h - messageSpacing;
 

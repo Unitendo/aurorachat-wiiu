@@ -111,6 +111,33 @@ std::string UrlDecode(const std::string& s)
     return out;
 }
 
+static std::string FormatTimestamp(const std::string& timestamp)
+{
+    if (timestamp.empty())
+        return "";
+
+    char* end = nullptr;
+    long long seconds = std::strtoll(timestamp.c_str(), &end, 10);
+
+    // Reject invalid timestamps
+    if (end == timestamp.c_str() || *end != '\0' || seconds < 0)
+        return "";
+
+    std::time_t rawTime = static_cast<std::time_t>(seconds);
+
+    std::tm* timeInfo = std::localtime(&rawTime);
+
+    if (!timeInfo)
+        return "";
+
+    char buffer[16];
+
+    if (std::strftime(buffer, sizeof(buffer), "%H:%M:%S", timeInfo) == 0)
+        return "";
+
+    return std::string(buffer);
+}
+
 static std::vector<std::string> SplitFields(const std::string& line)
 {
     std::vector<std::string> parts;
@@ -473,12 +500,34 @@ void TryReceive(int* sock, SDL_Renderer* tvRenderer, SDL_Renderer* drcRenderer, 
                 {
                     std::string user = UrlDecode(parts[1]);
                     std::string message = UrlDecode(parts[2]);
-                
+                    std::string timestamp;
+
+                    if (parts.size() >= 4 && !parts[3].empty())
+                    {
+                        try
+                        {
+                            std::time_t timestampValue = static_cast<std::time_t>(std::stoll(parts[3]));
+
+                            std::tm* timeInfo = std::localtime(&timestampValue);
+
+                            if (timeInfo)
+                            {
+                                char buffer[6];
+                                std::strftime(buffer, sizeof(buffer), "%H:%M", timeInfo);
+                                timestamp = buffer;
+                            }
+                        }
+                        catch (...)
+                        {
+                            timestamp.clear();
+                        }
+                    }
+
                     bool isDiscord = user.find("[DISCORD]") != std::string::npos;
                     SDL_Texture* avatar = isDiscord ? discordAvatar : defaultAvatar;
                     SDL_Texture* drcAvatar = isDiscord ? drcDiscordAvatar : drcDefaultAvatar;
 
-                    AddChatLine(tvRenderer, drcRenderer, user, message, avatar, drcAvatar, fontSize, fontSize, textColor, textColor, tvMaxWidth, tvChatViewHeight, drcMaxWidth, drcChatViewHeight);
+                    AddChatLine(tvRenderer, drcRenderer, user, message, avatar, drcAvatar, fontSize, fontSize, textColor, textColor, tvMaxWidth, tvChatViewHeight, drcMaxWidth, drcChatViewHeight, timestamp);
 
                     if (expectingHistory) {
                         ScrollChatToBottom(tvChatViewHeight);
